@@ -1,0 +1,9 @@
+@api = http://localhost:5000
+
+###
+POST {{api}}/compilar
+Content-Type: application/json
+
+{
+    "code": "println(5 + 5.5 * 5.5 - 2);"
+}
