@@ -5,5 +5,5 @@ POST {{api}}/compilar
 Content-Type: application/json
 
 {
-    "code": "println(true == true);"
+    "code": "println(3 ^ 5);"
 }

@@ -30,9 +30,6 @@ class Relacional(Instruccion):
         right = None
         value = Valor(None, TipoVar.BOOLEAN, False)
 
-        # true_label = ''
-        # false_label = ''
-
         if left.get_type() != TipoVar.BOOLEAN:
             right: Valor = self.right.compilar(entorno)
             if (
