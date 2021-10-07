@@ -1,7 +1,6 @@
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.Entorno import Entorno
-from src.interprete.compilador.simbolos.Generador import Generador
 from src.interprete.compilador.tipos.Tipo import TipoRelational, TipoVar
 
 
@@ -22,9 +21,9 @@ class Relacional(Instruccion):
         self.right: Instruccion = right
         self.line = line
         self.column = column
-        self.generador = Generador.get_instance()
 
     def compilar(self, entorno: Entorno):
+        self.generador.new_comment_line()
         self.generador.new_commnet('INICIO EXPRESION RELACIONAL')
         left: Valor = self.left.compilar(entorno)
         right = None
@@ -38,8 +37,10 @@ class Relacional(Instruccion):
                 and right.get_value() == TipoVar.INT64
                 or right.get_value() == TipoVar.FLOAT64
             ):
-                true_label = self.generador.new_label()  # TRUE -> L0...Ln
-                false_label = self.generador.new_label()  # FALSE -> L1..Ln
+
+                # TRUE -> L0...Ln
+                # FALSE -> L1..Ln
+                self.set_labels()
 
                 # -------------- -> IF <- --------------
                 # if left op right { goto true_label; }
@@ -48,11 +49,11 @@ class Relacional(Instruccion):
                     left.get_value(),
                     right.get_value(),
                     self.get_operation(self.type),
-                    true_label,
+                    self.true_label,
                 )
-                self.generador.new_goto(false_label)
-                value.set_true_label(true_label)
-                value.set_false_label(false_label)
+                self.generador.new_goto(self.false_label)  # goto false_lb
+                value.set_true_label(self.true_label)
+                value.set_false_label(self.false_label)
             elif (
                 left.get_type() == TipoVar.STRING
                 and right.get_type() == TipoVar.STRING
@@ -104,22 +105,24 @@ class Relacional(Instruccion):
             self.generador.new_exp(right_temp, '0', '', '')  # t1 = 0
 
             # -------------- -> IF LABEL <- --------------
-            true_label = self.generador.new_label()
-            false_label = self.generador.new_label()
+            # true_label = self.generador.new_label()
+            # false_label = self.generador.new_label()
+            self.set_labels()
 
             self.generador.set_label(if_label)  # L5:
             self.generador.new_if(
                 temp_left,
                 right_temp,
                 self.get_operation(self.type),
-                true_label,
+                self.true_label,
             )  # if true == true { goto true_label; }
 
-            self.generador.new_goto(false_label)  # goto { false_label; }
-            value.set_true_label(true_label)
-            value.set_false_label(false_label)
+            self.generador.new_goto(self.false_label)  # goto { false_label; }
+            value.set_true_label(self.true_label)
+            value.set_false_label(self.false_label)
 
         self.generador.new_commnet('FIN EXPRESION RELACIONAL')
+        self.generador.new_comment_line()
         return value
 
     def get_operation(self, operation: TipoRelational):
@@ -136,3 +139,9 @@ class Relacional(Instruccion):
         elif operation == TipoRelational.DIFERENTE:
             return '!='
         return ''
+
+    def set_labels(self):
+        if self.true_label == '':
+            self.true_label = self.generador.new_label()
+        if self.false_label == '':
+            self.false_label = self.generador.new_label()

@@ -134,12 +134,12 @@ class Generador:
     # -------------- -> FUNCTION <- --------------
 
     def new_commnet(self, text: str):
+        comment = f'// {text.upper()}\n'
+        self.set_code(comment)
+
+    def new_comment_line(self):
         comment = (
             '// -----------------------------------------------------------\n'
-        )
-        comment += f'\t// {text}\n'
-        comment += (
-            '\t// -----------------------------------------------------------\n'
         )
         self.set_code(comment)
 

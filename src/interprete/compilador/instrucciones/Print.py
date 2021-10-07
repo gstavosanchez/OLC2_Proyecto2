@@ -1,7 +1,6 @@
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.Entorno import Entorno
-from src.interprete.compilador.simbolos.Generador import Generador
 from src.interprete.compilador.tipos.Tipo import TipoPrint, TipoVar
 
 
@@ -12,7 +11,6 @@ class Print(Instruccion):
         self.new_line = new_line
         self.line = line
         self.column = column
-        self.generador = Generador.get_instance()
 
     def compilar(self, entorno: Entorno):
         for exp in self.exp_list:
@@ -62,3 +60,6 @@ class Print(Instruccion):
 
         if self.new_line:
             self.generador.print_line_break()
+
+    def set_labels(self):
+        pass

@@ -15,3 +15,6 @@ class TreeAST(Instruccion):
         for inst in self.inst_list:
             inst: Instruccion
             inst.compilar(self.entorno)
+
+    def set_labels(self):
+        pass

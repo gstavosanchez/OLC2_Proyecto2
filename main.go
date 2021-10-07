@@ -2,26 +2,42 @@ package main
 
 import "fmt"
 
-var t0, t1 float64
-
 func main() {
 	// -----------------------------------------------------------
-	// INICIO POTENCIA
+	// INICIO EXPRESION LOGICA
 	// -----------------------------------------------------------
-	t0 = 0
-	t1 = 1
-L0:
-	if t0 == 5 {
-		goto L1
+	// INICIO EXPRESION RELACIONAL
+	if 55 == 55 {
+		goto L0
 	}
-	t1 = 3 * t1
-	t0 = t0 + 1
-	goto L0
+	goto L2
+	// FIN EXPRESION RELACIONAL
 	// -----------------------------------------------------------
-	// FIN POTENCIA
+L2:
 	// -----------------------------------------------------------
+	// INICIO EXPRESION RELACIONAL
+	if 5 > 2 {
+		goto L0
+	}
+	goto L1
+	// FIN EXPRESION RELACIONAL
+	// -----------------------------------------------------------
+	// FIN EXPRESION LOGICA
+	// -----------------------------------------------------------
+L0:
+	fmt.Printf("%c", int(116))
+	fmt.Printf("%c", int(114))
+	fmt.Printf("%c", int(117))
+	fmt.Printf("%c", int(101))
+	goto L3
 L1:
-	fmt.Printf("%g", float64(t1))
+	fmt.Printf("%c", int(102))
+	fmt.Printf("%c", int(97))
+	fmt.Printf("%c", int(108))
+	fmt.Printf("%c", int(115))
+	fmt.Printf("%c", int(101))
+L3:
+	fmt.Printf("%c", int(32))
 	fmt.Printf("%c", int(10))
 
 }
