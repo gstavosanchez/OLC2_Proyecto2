@@ -2,24 +2,49 @@ package main
 
 import "fmt"
 
-// var t0 float64
+var t0, t1 float64
 
 func main() {
+	// -----------------------------------------------------------
+	// INICIO EXPRESION RELACIONAL
+	// -----------------------------------------------------------
 	goto L0
 	goto L1
 L0:
-	fmt.Printf("%c", 116) // T
-	fmt.Printf("%c", 114) // R
-	fmt.Printf("%c", 117) // U
-	fmt.Printf("%c", 101) // E
+	t0 = 1
 	goto L2
 L1:
-	fmt.Printf("%c", 116) // F
-	fmt.Printf("%c", 97)  // A
-	fmt.Printf("%c", 108) // L
-	fmt.Printf("%c", 115) // S
-	fmt.Printf("%c", 101) // E
+	t0 = 0
 L2:
-	fmt.Printf("%c", 10) // '\n'
+	goto L3
+	goto L4
+L3:
+	t1 = 1
+	goto L5
+L4:
+	t1 = 0
+L5:
+	if t0 == t1 {
+		goto L6
+	}
+	goto L7
+	// -----------------------------------------------------------
+	// FIN EXPRESION RELACIONAL
+	// -----------------------------------------------------------
+L6:
+	fmt.Printf("%c", int(116))
+	fmt.Printf("%c", int(114))
+	fmt.Printf("%c", int(117))
+	fmt.Printf("%c", int(101))
+	goto L8
+L7:
+	fmt.Printf("%c", int(102))
+	fmt.Printf("%c", int(97))
+	fmt.Printf("%c", int(108))
+	fmt.Printf("%c", int(115))
+	fmt.Printf("%c", int(101))
+L8:
+	fmt.Printf("%c", int(32))
+	fmt.Printf("%c", int(10))
 
 }

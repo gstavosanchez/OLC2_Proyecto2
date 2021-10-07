@@ -1,5 +1,3 @@
-import src.interprete.ply.lex as lex
-import src.interprete.ply.yacc as yacc
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
 from src.interprete.compilador.expresiones.Logica import Logica
 from src.interprete.compilador.expresiones.Primitivo import Primitivo
@@ -142,7 +140,6 @@ def t_COMENTARIO_SIMPLE(t):
 # ==============================================================================
 # OTROS
 # ==============================================================================
-lexer = lex.lex()
 # Caracteres ignorados
 t_ignore = ' \t'
 
@@ -167,6 +164,10 @@ def find_column(inp, token):
     line_start = inp.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
+
+import src.interprete.ply.lex as lex
+
+lexer = lex.lex()
 
 # -------------- -> PRECENDENCIA <- --------------
 precedence = (
@@ -510,6 +511,7 @@ def p_exp_fin(t):
 # ==============================================================================
 # PARSE
 # ==============================================================================
+import src.interprete.ply.yacc as yacc
 
 parser = yacc.yacc()
 input_data: str = ''
