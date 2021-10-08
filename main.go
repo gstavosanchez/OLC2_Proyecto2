@@ -2,6 +2,10 @@ package main
 
 import "fmt"
 
+var stack [30101999]float64
+var heap [30101999]float64
+var t1, t2, t3, t4 float32
+
 func main() {
 	// -----------------------------------------------------------
 	// INICIO EXPRESION LOGICA

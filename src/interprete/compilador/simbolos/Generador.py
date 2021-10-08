@@ -124,16 +124,18 @@ class Generador:
     # -------------- -> HEADER <- --------------
     def get_header(self):
         text = 'package main\n'
-        text += 'import "fmt"\n'
+        text += 'import "fmt"\n\n'
         # Declaracion de variables
+        text += 'var P, H float64;\n'
+        text += 'var stack [30101999]float64;\n'
+        text += 'var heap [30101999]float64;\n'
         if len(self.temp_list) > 0:
             text += 'var '
             for i in range(len(self.temp_list)):
                 text += self.temp_list[i]
                 if i != len(self.temp_list) - 1:
                     text += ', '
-            text += ' float64;\n'
-        # TODO: Agregar el heap y el stack
+            text += ' float64;\n\n'
         return text
 
     # -------------- -> FUNCTION <- --------------
@@ -156,7 +158,10 @@ class Generador:
     # EXPRESIONES
     # --------------------------------------------------------------------------
     def new_exp(self, result: str, left: str, right: str, op: str):
-        self.set_code(f'{result} = {left} {op} {right}; \n')
+        if right == '' and op == '':
+            self.set_code(f'{result} = {left}; \n')
+        else:
+            self.set_code(f'{result} = {left} {op} {right}; \n')
 
     # --------------------------------------------------------------------------
     # INSTRUCCIONES: PRINT
