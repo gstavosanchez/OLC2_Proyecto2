@@ -76,6 +76,9 @@ class Aritmetica(Instruccion):
         self.generador.set_label(while_lb)  # L1:
         if right.get_type() == TipoVar.FLOAT64:
             print('Error exponente es decimial')
+            self.generador.new_error(
+                'Expresion no es de tipo Int64', self.line, self.column
+            )
             return
 
         # if t0 == 2 { goto exit_label }

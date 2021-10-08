@@ -90,6 +90,9 @@ class Relacional(Instruccion):
             right: Valor = self.right.compilar(entorno)
             if right.get_type() != TipoVar.BOOLEAN:
                 print('NO SE PUEDE COMPARAR')
+                self.generador.new_error(
+                    'Expresion no es de tipo boolean', self.line, self.column
+                )
                 return
 
             if_label = self.generador.new_label()  # etiqueta if o de escape

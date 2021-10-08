@@ -1,3 +1,4 @@
+from src.interprete.error.Exception import ExceptionError
 from src.interprete.compilador.tipos.Tipo import TipoPrint, get_type_print
 
 
@@ -30,6 +31,8 @@ class Generador:
         self.temp_list: list = []
         # print
         self.is_print = False
+        # Error List
+        self.error_list: list = []
 
     def clean(self):
         # contadores
@@ -45,6 +48,8 @@ class Generador:
         self.temp_list: list = []
         # print
         self.is_print = False
+        # Error List
+        self.error_list: list = []
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -191,3 +196,32 @@ class Generador:
         self.print_new(TipoPrint.CARACTER, 108)  # L
         self.print_new(TipoPrint.CARACTER, 115)  # S
         self.print_new(TipoPrint.CARACTER, 101)  # E
+
+    # --------------------------------------------------------------------------
+    # ERROR_LIST
+    # --------------------------------------------------------------------------
+    def new_error(self, descripcion: str, line: int, column: int):
+        """NUEVO ERROR
+
+        Args:
+            descripcion (str): descripcion del error
+            line (int): linea del error
+            column (int): columna del error
+        """
+        new_error = ExceptionError(descripcion, line, column)
+        self.error_list.append(new_error)
+
+    def get_erro_str(self):
+        text: str = ''
+        for error in self.error_list:
+            text += error.to_string()
+        return text
+
+    def get_erro_json(self):
+        new_list: list = []
+        for error in self.error_list:
+            new_list.append(error.to_json())
+        return new_list
+
+    def get_error_list(self):
+        return self.error_list
