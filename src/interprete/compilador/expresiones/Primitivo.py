@@ -18,8 +18,11 @@ class Primitivo(Instruccion):
         self.type = type
 
     def compilar(self, entorno: Entorno):
+        self.generador.new_comment_line()
+        self.generador.new_commnet('inicio primitivo')
+        valor_return = None
         if self.type == TipoVar.INT64 or self.type == TipoVar.FLOAT64:
-            return Valor(self.value, self.type, False)
+            valor_return = Valor(self.value, self.type, False)
         elif self.type == TipoVar.BOOLEAN:
             self.set_labels()
 
@@ -33,7 +36,7 @@ class Primitivo(Instruccion):
             valor_return = Valor(self.value, self.type, False)
             valor_return.set_true_label(self.true_label)
             valor_return.set_false_label(self.false_label)
-            return valor_return
+            # return valor_return
         elif self.type == TipoVar.STRING:
             tmp_h = self.generador.new_temp()
             self.generador.line_break()
@@ -49,7 +52,14 @@ class Primitivo(Instruccion):
 
             self.generador.line_break()
 
-            return Valor(tmp_h, TipoVar.STRING, True)
+            valor_return = Valor(tmp_h, TipoVar.STRING, True)
+        else:
+            valor_return = Valor(self.value, self.type, False)
+
+        self.generador.new_commnet('fin primitivo')
+        self.generador.new_comment_line()
+        self.generador.line_break()
+        return valor_return
 
     def set_labels(self):
         if self.true_label == '':

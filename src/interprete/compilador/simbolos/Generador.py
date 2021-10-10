@@ -285,6 +285,16 @@ class Generador:
     # --------------------------------------------------------------------------
     # -------------- -> HEAP <- --------------
     def set_heap(self, index: str, value: str, comment: str = ''):
+        """
+        Guardar en el heap
+
+        heap[(int)INDEX] = VALUE
+
+        Args:
+            index (str): posicion del heap
+            value (str): valor a guardar
+            comment (str, optional): comentario. Defaults to ''.
+        """
         text = (
             f'heap[int({index})] = {value};\n'
             if comment == ''
@@ -292,14 +302,44 @@ class Generador:
         )
         self.set_code(text)
 
-    def get_heap(self, place: str, index: str):
-        self.set_code(f'{place} = heap[int({index})]; \n')
+    def get_heap(self, place: str, index: str, comment: str = ''):
+        """
+        Obtener valor del heap
+
+        PLACE = heap[(int)INDEX];
+
+        Args:
+            place (str): donde se guardara
+            index (str): posicion en el heap
+            comment (str, optional): comentario. Defaults to ''.
+        """
+        text = (
+            f'{place} = heap[int({index})];\n'
+            if comment == ''
+            else f'{place} = heap[int({index})]; // {comment}\n'
+        )
+        self.set_code(text)
 
     def nex_heap(self):
+        """
+        Incrementar el heap
+
+        H = H + 1;
+        """
         self.set_code('H = H + 1;\n')
 
     # -------------- -> STACK <- --------------
     def set_stack(self, index: str, value: str, comment: str = ''):
+        """
+        Guardar en el stack
+
+        stack[(int)INDEX] = VALUE;
+
+        Args:
+            index (str): posicion en el stack
+            value (str): valor a guardar
+            comment (str, optional): comentario. Defaults to ''.
+        """
         text = (
             f'stack[int({index})] = {value};\n'
             if comment == ''
@@ -308,6 +348,14 @@ class Generador:
         self.set_code(text)
 
     def get_stack(self, place: str, index: str):
+        """Obtener el valor del stack
+
+        PLACE = stack[(int)INDEX];
+
+        Args:
+            place (str): variable donde se guardara
+            index (str): posicion en el stack
+        """
         self.set_code(f'{place} = stack[int({index})];\n')
 
     # --------------------------------------------------------------------------
@@ -378,3 +426,75 @@ class Generador:
         self.is_join_str = True
         self.in_native = True
         self.new_begin_func('joinString')
+
+        # -------------- -> L0...Ln <- --------------
+        # Label de salida
+        end_lb = self.new_label()
+
+        # Label del While1 para la cadena 1
+        wh1_lb = self.new_label()
+        # Label para asignar el puntero donde inicia la cadena 2
+        set_lb = self.new_label()
+        # Label del While1 para la cadena 1
+        wh2_lb = self.new_label()
+
+        # -------------- -> T0...Tn <- --------------
+        # Temporal donde inicia la cadena unida
+        tmp_ret = self.new_temp()
+        # Temporal para el primer parametro, puntero P
+        tmp_p = self.new_temp()
+        # Temporal para el segudo parametro, puntero P
+        tmp_p2 = self.new_temp()
+        # Temporal para valor del heap, puntero del Heap
+        tmp_h = self.new_temp()
+        # Temporal para comapara
+        tmp_compare = self.new_temp()
+
+        # tmp_ret = H
+        self.new_exp(tmp_ret, 'H', '', '', 'Puntero, iniciara la nueva cadena')
+        # posicionamineto puntero para obtener el primer parametro
+        self.new_exp(tmp_p, 'P', '1', '+', 'Puntero, para el 1re parametro')
+        # obtener el puntero donde inica el primer parametro
+        # tmp_h = stack[int(tem_p)] -> Donde Inicia la cadena en el heap
+        self.get_stack(tmp_h, tmp_p)
+        # posicionamineto puntero para obtener el segudo parametro
+        self.new_exp(tmp_p2, 'P', '2', '+', 'Puntero, para el 2do parametro')
+
+        self.set_label(wh1_lb)  # L1: -> While 1
+
+        # tmp_compare = heap[int(tmp_h)] -> 1: 'h', 2: 'o', 3: 'l', 4: 'a'
+        self.get_heap(tmp_compare, tmp_h, 'Valor de la cadena No.1')
+
+        # condicion
+        self.new_if(tmp_compare, '-1', '==', set_lb)
+        # guardar el primer parametro en el heap
+        self.set_heap('H', tmp_compare)
+        # Incrementar el heap
+        self.nex_heap()
+        # Incrementar contador del heap
+        self.new_exp(tmp_h, tmp_h, '1', '+', 'Aumentar el contador heap')
+        # regresar al while
+        self.new_goto(wh1_lb)
+
+        # Obtener puntero donde inicia el 2do parametro
+        self.set_label(set_lb)
+        self.get_stack(tmp_h, tmp_p2)
+
+        # While 2
+        self.set_label(wh2_lb)
+        self.get_heap(tmp_compare, tmp_h, 'Valor de la cadena No.2')
+        # condicion
+        self.new_if(tmp_compare, '-1', '==', end_lb)
+        self.set_heap('H', tmp_compare)
+        self.nex_heap()
+        self.new_exp(tmp_h, tmp_h, '1', '+', 'Aumentar el contador heap')
+        self.new_goto(wh2_lb)
+
+        # L0: Salida
+        self.set_heap(end_lb)
+        # Fin de cadena
+        self.set_heap('H', '-1', 'FIN CADENA')
+        self.nex_heap()
+        self.set_stack('P', tmp_ret, 'Guardar donde inica la cadena unida')
+        self.new_end_funct()
+        self.in_native = False
