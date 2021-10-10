@@ -9,3 +9,6 @@ class Entorno:
 
     def set_size(self):
         self.size = self.previous.size if self.previous else 0
+
+    def get_size(self):
+        return self.size

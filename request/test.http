@@ -5,5 +5,5 @@ POST {{api}}/compilar
 Content-Type: application/json
 
 {
-    "code": "println(!(55 == 55) || 10 > 2);"
+    "code": "print(\"hola\");\nprintln(\"mundo\");"
 }

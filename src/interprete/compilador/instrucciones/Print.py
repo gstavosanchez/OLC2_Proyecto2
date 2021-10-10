@@ -55,8 +55,33 @@ class Print(Instruccion):
                     # self.generador.print_line_break()
                     self.generador.print_space()
 
-                else:
-                    pass
+                elif value.get_type() == TipoVar.STRING:
+                    self.generador.fPrintln()
+                    param_tmp = self.generador.new_temp()
+
+                    # -------------- -> Cambio de entorno <- --------------
+                    self.generador.new_comment_line()
+                    self.generador.new_commnet('guardar variable en stack')
+                    self.generador.new_exp(
+                        param_tmp, 'P', entorno.get_size(), '+'
+                    )
+                    self.generador.new_exp(param_tmp, param_tmp, '1', '+')
+                    # stack[int(t1)] = t0 // GUARDAR EL STRING
+                    self.generador.set_stack(param_tmp, value.get_value())
+                    self.generador.new_comment_line()
+                    self.generador.line_break()
+
+                    # Entorno normal
+                    self.generador.new_entorno(entorno.get_size())
+                    self.generador.call_function('printStr')
+
+                    self.generador.line_break()
+                    self.generador.new_commnet('Guardar return de la funcion')
+                    return_tmp = self.generador.new_temp()
+                    self.generador.get_stack(return_tmp, 'P')
+                    self.generador.new_commnet('regreso de entorno')
+                    self.generador.ret_entorno(entorno.get_size())
+                    self.generador.line_break()
 
         if self.new_line:
             self.generador.print_line_break()

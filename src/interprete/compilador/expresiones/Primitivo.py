@@ -34,9 +34,22 @@ class Primitivo(Instruccion):
             valor_return.set_true_label(self.true_label)
             valor_return.set_false_label(self.false_label)
             return valor_return
-        else:
-            # TODO:TERMINAR EL STRING
-            pass
+        elif self.type == TipoVar.STRING:
+            tmp_h = self.generador.new_temp()
+            self.generador.line_break()
+            self.generador.new_exp(tmp_h, 'H', '', '')
+
+            for caracter in str(self.value):
+                self.generador.set_heap('H', ord(caracter), caracter)
+                self.generador.nex_heap()
+
+            # Fin de cadena
+            self.generador.set_heap('H', '-1', 'FIN CADENA')
+            self.generador.nex_heap()
+
+            self.generador.line_break()
+
+            return Valor(tmp_h, TipoVar.STRING, True)
 
     def set_labels(self):
         if self.true_label == '':

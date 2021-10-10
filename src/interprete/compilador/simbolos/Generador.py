@@ -33,6 +33,8 @@ class Generador:
         self.is_print = False
         # Error List
         self.error_list: list = []
+        # joinString
+        self.is_join_str = False
 
     def clean(self):
         # contadores
@@ -50,6 +52,8 @@ class Generador:
         self.is_print = False
         # Error List
         self.error_list: list = []
+        # joinString
+        self.is_join_str = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -112,11 +116,32 @@ class Generador:
     # CODE MAIN GOLANG
     # --------------------------------------------------------------------------
     def set_code(self, code: str):
-        self.code += '\t' + code
+        if self.in_native:
+            if self.natives == '':
+                self.natives += (
+                    '// -----------------------------------------------------------\n// FUNCIONES NATIVAS \n'
+                    + code
+                )
+            else:
+                self.natives += '\t' + code
+        elif self.in_func:
+            if self.func == '':
+                self.func += (
+                    '// -----------------------------------------------------------\n // FUNCIONES \n'
+                    + code
+                )
+            else:
+                self.func += '\t' + code
+        else:
+            self.code += '\t' + code
 
     def get_code(self):
         text = self.get_header()
+        text += self.natives + '\n'
+        text += self.func + '\n'
         text += 'func main() {\n'
+        text += '\t P = 0 // Puntero Stack \n'
+        text += '\t H = 0 //Puntero Heap \n'
         text += self.code + '\n'
         text += '}\n'
         return str(text)
@@ -157,11 +182,23 @@ class Generador:
     # --------------------------------------------------------------------------
     # EXPRESIONES
     # --------------------------------------------------------------------------
-    def new_exp(self, result: str, left: str, right: str, op: str):
+    def new_exp(
+        self, result: str, left: str, right: str, op: str, comment: str = ''
+    ):
+        text = ''
         if right == '' and op == '':
-            self.set_code(f'{result} = {left}; \n')
+            text = (
+                f'{result} = {left};\n'
+                if comment == ''
+                else f'{result} = {left}; // {comment}\n'
+            )
         else:
-            self.set_code(f'{result} = {left} {op} {right}; \n')
+            text = (
+                f'{result} = {left} {op} {right}; \n'
+                if comment == ''
+                else f'{result} = {left} {op} {right}; //{comment}\n'
+            )
+        self.set_code(text)
 
     # --------------------------------------------------------------------------
     # INSTRUCCIONES: PRINT
@@ -230,3 +267,114 @@ class Generador:
 
     def get_error_list(self):
         return self.error_list
+
+    # --------------------------------------------------------------------------
+    # ENTORNOS
+    # --------------------------------------------------------------------------
+    def new_entorno(self, size):
+        self.set_code(f'P = P + {size};\n')
+
+    def call_function(self, name):
+        self.set_code(f'{name}();\n')
+
+    def ret_entorno(self, size):
+        self.set_code(f'P = P - {size};\n')
+
+    # --------------------------------------------------------------------------
+    # HEAP && STACK
+    # --------------------------------------------------------------------------
+    # -------------- -> HEAP <- --------------
+    def set_heap(self, index: str, value: str, comment: str = ''):
+        text = (
+            f'heap[int({index})] = {value};\n'
+            if comment == ''
+            else f'heap[int({index})] = {value}; // {comment}\n'
+        )
+        self.set_code(text)
+
+    def get_heap(self, place: str, index: str):
+        self.set_code(f'{place} = heap[int({index})]; \n')
+
+    def nex_heap(self):
+        self.set_code('H = H + 1;\n')
+
+    # -------------- -> STACK <- --------------
+    def set_stack(self, index: str, value: str, comment: str = ''):
+        text = (
+            f'stack[int({index})] = {value};\n'
+            if comment == ''
+            else f'stack[int({index})] = {value}; // {comment}\n'
+        )
+        self.set_code(text)
+
+    def get_stack(self, place: str, index: str):
+        self.set_code(f'{place} = stack[int({index})];\n')
+
+    # --------------------------------------------------------------------------
+    # NATIVES FUNCTIONS
+    # --------------------------------------------------------------------------
+    def new_begin_func(self, name_func: str):
+        if not self.in_native:
+            self.in_func = True
+        self.set_code(f'func {name_func}(){{\n')
+
+    def new_end_funct(self):
+        if not self.in_native:
+            self.in_func = False
+        self.set_code('return; \n}\n')
+
+    def fPrintln(self):
+        if self.is_print:
+            return
+
+        self.is_print = True
+        self.in_native = True
+
+        self.new_begin_func('printStr')
+
+        # Label de salida
+        end_lb = self.new_label()  # L0
+        # Label del ciclo para imprimir
+        while_lb = self.new_label()
+
+        # Temporal puntero stack
+        tmp_P = self.new_temp()
+
+        # Temporal puntero heap
+        tmp_H = self.new_temp()
+
+        self.new_exp(tmp_P, 'P', '1', '+', ' Puntero del parametro')
+
+        # t4 = stack[int(tem_p)] -> Donde Inicia la cadena en el heap
+        self.get_stack(tmp_H, tmp_P)
+
+        # Temporal para comparar
+        tmp_compare = self.new_temp()
+
+        self.set_label(while_lb)
+
+        # t5 = heap[int(tmp_p)] -> 1: 'h', 2: 'o', 3: 'l', 4: 'a'
+        self.get_heap(tmp_compare, tmp_H)
+
+        # condicion
+        self.new_if(tmp_compare, '-1', '==', end_lb)
+
+        self.print_new(TipoPrint.CARACTER, tmp_compare)
+        # incrementar contador
+        self.new_exp(tmp_H, tmp_H, '1', '+', 'aumentar el contador del heap')
+        # regresar al while
+        self.new_goto(while_lb)
+
+        # Label de salir
+        self.set_label(end_lb)  # L0
+
+        self.new_end_funct()
+        self.in_native = False
+
+    def concat_string(self):
+        if self.is_join_str:
+            return
+
+        self.is_join_str = True
+        self.in_native = True
+        self.new_begin_func('joinString')
