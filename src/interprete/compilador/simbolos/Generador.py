@@ -37,6 +37,10 @@ class Generador:
         self.is_join_str = False
         # potencia string
         self.is_pot_str = False
+        # Upper Case
+        self.is_to_upper = False
+        # Lower Case
+        self.is_to_lower = False
 
     def clean(self):
         # contadores
@@ -58,6 +62,10 @@ class Generador:
         self.is_join_str = False
         # potencia string
         self.is_pot_str = False
+        # Upper Case
+        self.is_to_upper = False
+        # Lower Case
+        self.is_to_lower = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -131,7 +139,7 @@ class Generador:
         elif self.in_func:
             if self.func == '':
                 self.func += (
-                    '// -----------------------------------------------------------\n // FUNCIONES \n'
+                    '// -----------------------------------------------------------\n// FUNCIONES \n'
                     + code
                 )
             else:
@@ -143,6 +151,11 @@ class Generador:
         text = self.get_header()
         text += self.natives + '\n'
         text += self.func + '\n'
+        text += '\n'
+        text += '// ===========================================================\n// MAIN \n'
+        text += (
+            '// ===========================================================\n'
+        )
         text += 'func main() {\n'
         text += '\t P = 0 // Puntero Stack \n'
         text += '\t H = 0 //Puntero Heap \n'
@@ -591,5 +604,101 @@ class Generador:
         self.set_heap('H', '-1', 'FIN CADENA')
         self.nex_heap()
         self.set_stack('P', tmp_ret, 'Guardar donde inica la cadena unida')
+        self.new_end_funct()
+        self.in_native = False
+
+    def to_upper(self):
+        if self.is_to_upper:
+            return
+
+        self.is_to_upper = True
+        self.in_native = True
+        self.new_begin_func('toUpperCase')
+
+        # -------------- -> L0...Ln <- --------------
+        # Label de salida
+        end_lb = self.new_label()
+        # Label del while
+        whl_lb = self.new_label()
+        # Label del continue
+        cont_lb = self.new_label()
+        # -------------- -> T0...Tn <- --------------
+        tmp_ret = self.new_temp()
+        tmp_p = self.new_temp()
+        tmp_h = self.new_temp()
+        tmp_comp = self.new_temp()
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_ret, 'H', '', '')
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_h, tmp_p)
+        # -------------- -> WHILE <- --------------
+        self.set_label(whl_lb)
+        self.get_heap(tmp_comp, tmp_h)
+        self.new_if(tmp_comp, '-1', '==', end_lb)
+        self.new_if(tmp_comp, '97', '<', cont_lb)
+        self.new_if(tmp_comp, '122', '>', cont_lb)
+        self.new_exp(tmp_comp, tmp_comp, '32', '-', 'Convertir en mayuscula')
+        # -------------- -> CONTINUE <- --------------
+        # L2: continue
+        self.set_label(cont_lb)
+        self.set_heap('H', tmp_comp)
+        self.nex_heap()
+        self.new_exp(tmp_h, tmp_h, '1', '+')
+        self.new_goto(whl_lb)
+        # -------------- -> SALIDA <- --------------
+        # L0: Salida
+        self.set_label(end_lb)
+        # Fin de cadena
+        self.set_heap('H', '-1', 'FIN CADENA')
+        self.nex_heap()
+        self.set_stack('P', tmp_ret, 'Guardar donde inica la nueva cadena')
+        self.new_end_funct()
+        self.in_native = False
+
+    def to_lower(self):
+        if self.is_to_lower:
+            return
+
+        self.is_to_lower = True
+        self.in_native = True
+        self.new_begin_func('toLowerCase')
+
+        # -------------- -> L0...Ln <- --------------
+        # Label de salida
+        end_lb = self.new_label()
+        # Label del while
+        whl_lb = self.new_label()
+        # Label del continue
+        cont_lb = self.new_label()
+        # -------------- -> T0...Tn <- --------------
+        tmp_ret = self.new_temp()
+        tmp_p = self.new_temp()
+        tmp_h = self.new_temp()
+        tmp_comp = self.new_temp()
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_ret, 'H', '', '')
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_h, tmp_p)
+        # -------------- -> WHILE <- --------------
+        self.set_label(whl_lb)
+        self.get_heap(tmp_comp, tmp_h)
+        self.new_if(tmp_comp, '-1', '==', end_lb)
+        self.new_if(tmp_comp, '65', '<', cont_lb)
+        self.new_if(tmp_comp, '90', '>', cont_lb)
+        self.new_exp(tmp_comp, tmp_comp, '32', '+', 'Convertir en mayuscula')
+        # -------------- -> CONTINUE <- --------------
+        # L2: continue
+        self.set_label(cont_lb)
+        self.set_heap('H', tmp_comp)
+        self.nex_heap()
+        self.new_exp(tmp_h, tmp_h, '1', '+')
+        self.new_goto(whl_lb)
+        # -------------- -> SALIDA <- --------------
+        # L0: Salida
+        self.set_label(end_lb)
+        # Fin de cadena
+        self.set_heap('H', '-1', 'FIN CADENA')
+        self.nex_heap()
+        self.set_stack('P', tmp_ret, 'Guardar donde inica la nueva cadena')
         self.new_end_funct()
         self.in_native = False

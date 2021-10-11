@@ -1,3 +1,4 @@
+from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
 from src.interprete.compilador.expresiones.Logica import Logica
 from src.interprete.compilador.expresiones.Primitivo import Primitivo
@@ -7,6 +8,7 @@ from src.interprete.compilador.tipos.Tipo import (
     TipoArtimetico,
     TipoLogico,
     TipoRelational,
+    TipoUpLowCase,
     TipoVar,
 )
 
@@ -20,6 +22,8 @@ reservadas = {
     # RESERVADAS
     'true': 'RTRUE',
     'false': 'RFALSE',
+    'uppercase': 'RUPPER',
+    'lowercase': 'RLOWER',
 }
 # ==============================================================================
 # TOKENS
@@ -506,6 +510,28 @@ def p_exp_fin(t):
                     t.lineno(1),
                     find_column(input_data, t.slice[1]),
                 )
+
+
+def p_exp_uplow_case(t):
+    '''
+    expresion           : RUPPER PARA expresion PARC
+                        | RLOWER PARA expresion PARC
+    '''
+    if len(t) == 5:
+        if t[1] == 'uppercase':
+            t[0] = ToUpLowCase(
+                TipoUpLowCase.UPPER,
+                t[3],
+                t.lineno(1),
+                find_column(input_data, t.slice[1]),
+            )
+        elif t[1] == 'lowercase':
+            t[0] = ToUpLowCase(
+                TipoUpLowCase.LOWER,
+                t[3],
+                t.lineno(1),
+                find_column(input_data, t.slice[1]),
+            )
 
 
 # ==============================================================================

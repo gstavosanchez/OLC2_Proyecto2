@@ -40,6 +40,11 @@ class TipoPrint(Enum):
     CARACTER = 1        # "%c"
     FLOAT = 2           # "%g"
 
+class TipoUpLowCase(Enum):
+    UPPER = 1           # Upper Case
+    LOWER = 2           # Lower Case
+
+    
 def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:
         return 'c', 'int'

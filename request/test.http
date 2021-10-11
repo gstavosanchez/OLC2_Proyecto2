@@ -5,5 +5,5 @@ POST {{api}}/compilar
 Content-Type: application/json
 
 {
-    "code": "print(\"hola\" ^ 4)"
+    "code": "println(uppercase(\"hola\")); \n println(lowercase(\"MUNdo\"));"
 }
