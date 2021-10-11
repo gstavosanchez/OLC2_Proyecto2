@@ -5,33 +5,65 @@ import "fmt"
 var P, H float64
 var stack [30101999]float64
 var heap [30101999]float64
-var t0, t1, t2, t3, t4, t5, t6, t7, t8 float64
+var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14 float64
 
 // -----------------------------------------------------------
 // FUNCIONES NATIVAS
-func printStr() {
-	t1 = P + 1 // Puntero del stack // parametro 1
-	t2 = stack[int(t1)]
+func potenciaStr() {
+	t1 = H     // Puntero, iniciara la nueva cadena
+	t2 = P + 1 //Puntero, 1er parametro
+	t3 = stack[int(t2)]
+	t2 = t2 + 1 //Puntero, 2do parametro
+	t4 = stack[int(t2)]
+	t6 = 1  // Contador, compara con el expo
+	t7 = t3 // Copia del incio del 1er param
 L1:
-	t3 = heap[int(t2)]
-	if t3 == -1 {
+	t5 = heap[int(t3)]
+	if t5 == -1 {
+		goto L2
+	}
+	heap[int(H)] = t5
+	H = H + 1
+	t3 = t3 + 1 //Aumentar puntero del heap
+	goto L1
+L2:
+	if t6 == t4 {
 		goto L0
 	}
-	fmt.Printf("%c", int(t3))
-	t2 = t2 + 1 //aumentar el contador del heap
+	t6 = t6 + 1 //Aumentar contador de comparacion con el exp.
+	t3 = t7     // Reiniciar puntero del heap
 	goto L1
 L0:
+	heap[int(H)] = -1 // FIN CADENA
+	H = H + 1
+	stack[int(P)] = t1 // Guardar donde inica la cadena unida
 	return
 }
-
-// -----------------------------------------------------------
-func concacString() {
-
+func printStr() {
+	t10 = P + 1 // Puntero del parametro
+	t11 = stack[int(t10)]
+L4:
+	t12 = heap[int(t11)]
+	if t12 == -1 {
+		goto L3
+	}
+	fmt.Printf("%c", int(t12))
+	t11 = t11 + 1 //aumentar el contador del heap
+	goto L4
+L3:
+	return
 }
 
 func main() {
 	P = 0 // Puntero Stack
 	H = 0 //Puntero Heap
+
+	// -----------------------------------------------------------
+	// INICIO PRINT
+	// -----------------------------------------------------------
+	// INICIO EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+	// INICIO PRIMITIVO
 
 	t0 = H
 	heap[int(H)] = 104 // h
@@ -45,50 +77,50 @@ func main() {
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
+	// FIN PRIMITIVO
+	// -----------------------------------------------------------
+
+	// -----------------------------------------------------------
+	// INICIO PRIMITIVO
+	// FIN PRIMITIVO
+	// -----------------------------------------------------------
+
+	// -----------------------------------------------------------
+	// PASO DE PARAMETROS
+	t8 = P + 0
+	// 1ER PARAMETRO
+	t8 = t8 + 1
+	stack[int(t8)] = t0
+	// 2DO PARAMETRO
+	t8 = t8 + 1
+	stack[int(t8)] = 4
+	// FIN PASO DE PARAMETROS
+	// -----------------------------------------------------------
+	// CAMBIO DE ENTORNO
+	P = P + 0
+	potenciaStr()
+	// GUARDAR EL RETURN DE LA FUNCION
+	t9 = stack[int(P)]
+	P = P - 0
+	// FIN EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+
 	// -----------------------------------------------------------
 	// GUARDAR VARIABLE EN STACK
-	t4 = P + 0
-	t4 = t4 + 1
-	stack[int(t4)] = t0
+	t13 = P + 0
+	t13 = t13 + 1
+	stack[int(t13)] = t9
 	// -----------------------------------------------------------
 
 	P = P + 0
 	printStr()
 
 	// GUARDAR RETURN DE LA FUNCION
-	t5 = stack[int(P)]
+	t14 = stack[int(P)]
 	// REGRESO DE ENTORNO
 	P = P - 0
 
-	t6 = H
-	heap[int(H)] = 109 // m
-	H = H + 1
-	heap[int(H)] = 117 // u
-	H = H + 1
-	heap[int(H)] = 110 // n
-	H = H + 1
-	heap[int(H)] = 100 // d
-	H = H + 1
-	heap[int(H)] = 111 // o
-	H = H + 1
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-
+	// FIN PRINT
 	// -----------------------------------------------------------
-	// GUARDAR VARIABLE EN STACK
-	t7 = P + 0
-	t7 = t7 + 1
-	stack[int(t7)] = t6
-	// -----------------------------------------------------------
-
-	P = P + 0
-	printStr()
-
-	// GUARDAR RETURN DE LA FUNCION
-	t8 = stack[int(P)]
-	// REGRESO DE ENTORNO
-	P = P - 0
-
-	fmt.Printf("%c", int(10))
 
 }

@@ -35,6 +35,8 @@ class Generador:
         self.error_list: list = []
         # joinString
         self.is_join_str = False
+        # potencia string
+        self.is_pot_str = False
 
     def clean(self):
         # contadores
@@ -54,6 +56,8 @@ class Generador:
         self.error_list: list = []
         # joinString
         self.is_join_str = False
+        # potencia string
+        self.is_pot_str = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -350,7 +354,7 @@ class Generador:
     def get_stack(self, place: str, index: str):
         """Obtener el valor del stack
 
-        PLACE = stack[(int)INDEX];
+        PLACE = stack[int(INDEX)];
 
         Args:
             place (str): variable donde se guardara
@@ -425,7 +429,7 @@ class Generador:
 
         self.is_join_str = True
         self.in_native = True
-        self.new_begin_func('joinString')
+        self.new_begin_func('joinStr')
 
         # -------------- -> L0...Ln <- --------------
         # Label de salida
@@ -491,7 +495,98 @@ class Generador:
         self.new_goto(wh2_lb)
 
         # L0: Salida
-        self.set_heap(end_lb)
+        self.set_label(end_lb)
+        # Fin de cadena
+        self.set_heap('H', '-1', 'FIN CADENA')
+        self.nex_heap()
+        self.set_stack('P', tmp_ret, 'Guardar el inicio de la cadena unida')
+        self.new_end_funct()
+        self.in_native = False
+
+    def pot_string(self):
+        if self.is_pot_str:
+            return
+
+        self.is_pot_str = True
+        self.in_native = True
+        self.new_begin_func('potenciaStr')
+
+        # -------------- -> L0..Ln <- --------------
+        # Label de salida
+        end_lb = self.new_label()
+        # Label del while
+        whl_lb = self.new_label()
+        # Label del continue
+        cont_lb = self.new_label()
+        # -------------- -> T0...Tn <- --------------
+        # Temporal dnde inicia la cadena unida
+        tmp_ret = self.new_temp()
+        # Temporal para el primer parametro, puntero P
+        tmp_p = self.new_temp()
+        # Temporal para puntero del heap, inicia el primer parametro
+        tmp_h = self.new_temp()
+        # Temporal para guardar el exponente
+        tmp_exp = self.new_temp()
+        # Temporal para comparar la cadena ->> h,o,l,a
+        tmp_compare = self.new_temp()
+        # Temporal para comparar el expomenete
+        tmp_com_exp = self.new_temp()
+        # Copia del inicio del cadena
+        tmp_h_copy = self.new_temp()
+
+        # -------------- -> EXPRESIONES <- --------------
+        # tmp_ret = H
+        self.new_exp(tmp_ret, 'H', '', '', 'Puntero, iniciara la nueva cadena')
+        # tmp_p = P + 1 ->> posicionamineto puntero para obtener el 1er param
+        self.new_exp(tmp_p, 'P', '1', '+', 'Puntero, 1er parametro')
+        # tmp_h = stack[int(tmp_p)] ->> Inicia el 1er parametro del heap
+        self.get_stack(tmp_h, tmp_p)
+        # tmp_p = tmp_p + 1 ->> posicionamint. puntero para obtener el 2do param
+        # Esta caso es un exponente (numero)
+        self.new_exp(tmp_p, tmp_p, '1', '+', 'Puntero, 2do parametro')
+        # tmp_exp = stack[int(tmp_p)] ->> 2do parametro del heap
+        self.get_stack(tmp_exp, tmp_p)
+        # tmp_com_exp = 1 ->> Aumenta, comparar con el exponente
+        self.new_exp(tmp_com_exp, '1', '', '', 'Contador, compara con el expo')
+        # tmp_h_copy = tmp_h -> copia del inicio de la cadena
+        self.new_exp(tmp_h_copy, tmp_h, '', '', 'Copia del incio del 1er param')
+
+        # -------------- -> WHILE <- --------------
+        # L1 -> while:
+        self.set_label(whl_lb)
+        # tmp_comare = heap[int(tmp_h)] -> 1: 'h', 2: 'o', 3: 'l', 4: 'a'
+        self.get_heap(tmp_compare, tmp_h)
+        # condicion
+        self.new_if(tmp_compare, '-1', '==', cont_lb)
+        # Guardar parametro en el heap
+        self.set_heap('H', tmp_compare)
+        # Incrementar el heap
+        self.nex_heap()
+        # aumentar el contador del heap
+        self.new_exp(tmp_h, tmp_h, '1', '+', 'Aumentar puntero del heap')
+        self.new_goto(whl_lb)
+
+        # -------------- -> CONTINUE <- --------------
+        # L2 -> continue:
+        self.set_label(cont_lb)
+        # condicion
+        self.new_if(tmp_com_exp, tmp_exp, '==', end_lb)
+        # tmp_com_exp = tmp_com_exp + 1 -> Incrementar contador del exp
+        self.new_exp(
+            tmp_com_exp,
+            tmp_com_exp,
+            '1',
+            '+',
+            'Aumentar contador de comparacion con el exp.',
+        )
+        # Reiniciar el contador del contador del heap
+        self.new_exp(tmp_h, tmp_h_copy, '', '', 'Reiniciar puntero del heap')
+        # Regresar al while
+        self.new_goto(whl_lb)
+
+        # -------------- -> EXIT <- --------------
+        # L0: Salida
+        self.set_label(end_lb)
         # Fin de cadena
         self.set_heap('H', '-1', 'FIN CADENA')
         self.nex_heap()

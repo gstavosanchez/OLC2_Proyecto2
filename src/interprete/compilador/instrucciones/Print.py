@@ -13,6 +13,9 @@ class Print(Instruccion):
         self.column = column
 
     def compilar(self, entorno: Entorno):
+        self.generador.line_break()
+        self.generador.new_comment_line()
+        self.generador.new_commnet('Inicio Print')
         for exp in self.exp_list:
             exp: Instruccion
             if exp is not None:
@@ -85,6 +88,9 @@ class Print(Instruccion):
 
         if self.new_line:
             self.generador.print_line_break()
+
+        self.generador.new_commnet('fin Print')
+        self.generador.new_comment_line()
 
     def set_labels(self):
         pass

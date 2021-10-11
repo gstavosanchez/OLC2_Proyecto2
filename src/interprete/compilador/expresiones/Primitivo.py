@@ -20,6 +20,7 @@ class Primitivo(Instruccion):
     def compilar(self, entorno: Entorno):
         self.generador.new_comment_line()
         self.generador.new_commnet('inicio primitivo')
+        self.generador.new_commnet(f'{self.value}')
         valor_return = None
         if self.type == TipoVar.INT64 or self.type == TipoVar.FLOAT64:
             valor_return = Valor(self.value, self.type, False)

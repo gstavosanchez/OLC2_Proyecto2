@@ -30,16 +30,25 @@ class Aritmetica(Instruccion):
 
         operation = self.get_type(self.type)
         if self.type == TipoArtimetico.POT:
-            self.generador.new_comment_line('fin expresion aritmetica')
-            self.generador.new_comment_line()
+            if (
+                left.get_type() == TipoVar.STRING
+                and right.get_type() == TipoVar.INT64
+            ):
+                return self.pot_str(left, right, entorno)
             return self.get_potencia(left, right)
+        elif self.type == TipoArtimetico.POR:
+            if (
+                left.get_type() == TipoVar.STRING
+                and right.get_type() == TipoVar.STRING
+            ):
+                return self.concat_string(left, right, entorno)
 
         temp = self.generador.new_temp()  # Nuevo Temporal -> t1...tn
 
         left_value = left.get_value() if left else '0'
         self.generador.new_exp(temp, left_value, right.get_value(), operation)
 
-        self.generador.new_comment_line('fin expresion aritmetica')
+        self.generador.new_commnet('fin expresion aritmetica')
         self.generador.new_comment_line()
         return Valor(temp, TipoVar.FLOAT64, True)
 
@@ -91,7 +100,75 @@ class Aritmetica(Instruccion):
         self.generador.new_goto(while_lb)
         self.generador.set_label(exit_lb)  # L1: -> exit label
 
+        self.generador.new_commnet('fin expresion aritmetica')
+        self.generador.new_comment_line()
         return Valor(tmp_result, TipoVar.FLOAT64, True)
 
     def set_labels(self):
         pass
+
+    def concat_string(self, left: Valor, right: Valor, entorno: Entorno):
+        self.generador.concat_string()
+        self.generador.new_comment_line()
+        self.generador.new_commnet('paso de parametros')
+        # Temporal para almacenar parametros
+        tmp_p = self.generador.new_temp()
+        self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')
+        # Guardar primer parametro
+        self.generador.new_commnet('1er Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, left.get_value())
+        # Guradar el segundo parametro
+        self.generador.new_commnet('2do Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, right.get_value())
+        self.generador.new_commnet('fin paso parametros')
+        self.generador.new_comment_line()
+        # Cambio de entorno para buscar los parametros
+        self.generador.new_commnet('Cambio de entorno')
+        self.generador.new_entorno(entorno.get_size())
+        self.generador.call_function('joinStr')
+        # Guardar valor del return de la funcion
+        self.generador.new_commnet('Guardar return de la funcion')
+        return_p = self.generador.new_temp()
+        self.generador.get_stack(return_p, 'P')
+        self.generador.new_commnet('Regreso entorno global')
+        self.generador.ret_entorno(entorno.get_size())
+
+        self.generador.new_commnet('fin expresion aritmetica')
+        self.generador.new_comment_line()
+        self.generador.line_break()
+        return Valor(return_p, TipoVar.STRING, True)
+
+    def pot_str(self, left: Valor, right: Valor, entorno: Entorno):
+        self.generador.pot_string()
+        self.generador.new_comment_line()
+        self.generador.new_commnet('Paso de parametros')
+        # Temporal para almacenar parametros
+        tmp_p = self.generador.new_temp()
+        self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')
+        # Guardar primer parametro
+        self.generador.new_commnet('1er Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, left.get_value())
+        # Guardar segundo parametro
+        self.generador.new_commnet('2do Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, right.get_value())
+        self.generador.new_commnet('fin paso de parametros')
+        self.generador.new_comment_line()
+        # Cambio de parametro para buscar los parametros
+        self.generador.new_commnet('cambio de entorno')
+        self.generador.new_entorno(entorno.get_size())
+        self.generador.call_function('potenciaStr')
+        # Gurdar el return de la funcion
+        self.generador.new_commnet('Guardar el return de la funcion')
+        return_p = self.generador.new_temp()
+        self.generador.get_stack(return_p, 'P')
+        self.generador.ret_entorno(entorno.get_size())
+
+        self.generador.new_commnet('fin expresion aritmetica')
+        self.generador.new_comment_line()
+        self.generador.line_break()
+
+        return Valor(return_p, TipoVar.STRING, True)

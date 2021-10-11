@@ -5,5 +5,5 @@ POST {{api}}/compilar
 Content-Type: application/json
 
 {
-    "code": "print(\"hola\");\nprintln(\"mundo\");"
+    "code": "print(\"hola\" ^ 4)"
 }
