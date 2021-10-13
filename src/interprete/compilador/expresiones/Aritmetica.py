@@ -28,7 +28,6 @@ class Aritmetica(Instruccion):
         left: Valor = self.left.compilar(entorno) if self.left else None
         right: Valor = self.right.compilar(entorno)
 
-        operation = self.get_type(self.type)
         if self.type == TipoArtimetico.POT:
             if (
                 left.get_type() == TipoVar.STRING
@@ -42,7 +41,10 @@ class Aritmetica(Instruccion):
                 and right.get_type() == TipoVar.STRING
             ):
                 return self.concat_string(left, right, entorno)
+        elif self.type == TipoArtimetico.DIV:
+            return self.compare_division(left, right, entorno)
 
+        operation = self.get_type(self.type)
         temp = self.generador.new_temp()  # Nuevo Temporal -> t1...tn
 
         left_value = left.get_value() if left else '0'
@@ -50,6 +52,8 @@ class Aritmetica(Instruccion):
 
         self.generador.new_commnet('fin expresion aritmetica')
         self.generador.new_comment_line()
+        self.generador.line_break()
+
         return Valor(temp, TipoVar.FLOAT64, True)
 
     def get_type(self, operator: TipoArtimetico):
@@ -172,3 +176,36 @@ class Aritmetica(Instruccion):
         self.generador.line_break()
 
         return Valor(return_p, TipoVar.STRING, True)
+
+    def compare_division(self, left: Valor, right: Valor, entorno: Entorno):
+        self.generador.division_validate()
+        self.generador.new_comment_line()
+        self.generador.new_commnet('Paso de parametros')
+        # Temporal para almacenar parametros
+        tmp_p = self.generador.new_temp()
+        self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')
+        # Guardar primer parametro
+        self.generador.new_commnet('1er Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, left.get_value())
+        # Guardar segundo parametro
+        self.generador.new_commnet('2do Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, right.get_value())
+        self.generador.new_commnet('fin paso de parametros')
+        self.generador.new_comment_line()
+        # Cambio de parametro para buscar los parametros
+        self.generador.new_commnet('cambio de entorno')
+        self.generador.new_entorno(entorno.get_size())
+        self.generador.call_function('divValidate')
+        # Gurdar el return de la funcion
+        self.generador.new_commnet('Guardar el return de la funcion')
+        return_p = self.generador.new_temp()
+        self.generador.get_stack(return_p, 'P')
+        self.generador.ret_entorno(entorno.get_size())
+
+        self.generador.new_commnet('fin expresion aritmetica')
+        self.generador.new_comment_line()
+        self.generador.line_break()
+
+        return Valor(return_p, TipoVar.FLOAT64, True)

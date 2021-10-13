@@ -7,3 +7,6 @@ Content-Type: application/json
 {
     "code": "println(uppercase(\"hola\")); \n println(lowercase(\"MUNdo\"));"
 }
+
+### Desarrollo
+GET {{api}}/dev

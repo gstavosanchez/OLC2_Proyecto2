@@ -1,3 +1,7 @@
+from src.interprete.compilador.expresiones.AccesoVa import AccesoVariable
+from src.interprete.compilador.instrucciones.variable.Asignacion import (
+    Asignacion,
+)
 from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
 from src.interprete.compilador.expresiones.Logica import Logica
@@ -24,6 +28,11 @@ reservadas = {
     'false': 'RFALSE',
     'uppercase': 'RUPPER',
     'lowercase': 'RLOWER',
+    'Int64': 'RINT64',
+    'Float64': 'RFLOAT64',
+    'Bool': 'RBOOL',
+    'Char': 'RCHAR',
+    'String': 'RSTRING',
 }
 # ==============================================================================
 # TOKENS
@@ -34,7 +43,8 @@ tokens = [
     'PARA',
     'PARC',
     'COMA',
-    # 'IGUAL',
+    'IGUAL',
+    'DPUNTOS',
     # ARITMETICOS
     'MAS',
     'MENOS',
@@ -64,7 +74,8 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_COMA = r','
 t_PCOMA = r';'
-# t_IGUAL = r'='
+t_DPUNTOS = r'\:'
+t_IGUAL = r'='
 # -------------- -> TOKEN ARITMETICOS <- --------------
 t_MAS = r'\+'
 t_MENOS = r'\-'
@@ -224,6 +235,7 @@ def p_instrucciones_instruccion(t):
 def p_inst(t):
     '''
     instruccion         : print_inst fin_inst
+                        | asign_inst fin_inst
     '''
     t[0] = t[1]
 
@@ -261,6 +273,23 @@ def p_inst_println(t):
         )
     else:
         t[0] = Print([], t.lineno(1), find_column(input_data, t.slice[1]), True)
+
+
+# ------------------------------------------------------------------------------
+# ASIGNACION
+def p_inst_asignacion(t):
+    '''
+    asign_inst          : ID IGUAL expresion DPUNTOS DPUNTOS tipo
+                        | ID IGUAL expresion
+    '''
+    if len(t) == 7:
+        t[0] = Asignacion(
+            t[1], t[6], t[3], t.lineno(2), find_column(input_data, t.slice[2])
+        )
+    elif len(t) == 4:
+        t[0] = Asignacion(
+            t[1], None, t[3], t.lineno(2), find_column(input_data, t.slice[2])
+        )
 
 
 # ==============================================================================
@@ -471,6 +500,7 @@ def p_exp_fin(t):
                         | RTRUE
                         | RFALSE
                         | CADENA
+                        | ID
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -486,6 +516,10 @@ def p_exp_fin(t):
                 TipoVar.FLOAT64,
                 t.lineno(1),
                 find_column(input_data, t.slice[1]),
+            )
+        elif t.slice[1].type == 'ID':
+            t[0] = AccesoVariable(
+                t[1], t.lineno(1), find_column(input_data, t.slice[1])
             )
         elif isinstance(t[1], str):
             value = t[1]
@@ -532,6 +566,34 @@ def p_exp_uplow_case(t):
                 t.lineno(1),
                 find_column(input_data, t.slice[1]),
             )
+
+
+# ------------------------------------------------------------------------------
+# TIPO
+# ------------------------------------------------------------------------------
+def p_tipo(t):
+    '''
+    tipo                : RINT64
+                        | RFLOAT64
+                        | RBOOL
+                        | RCHAR
+                        | RSTRING
+    '''
+    if len(t) == 2:
+        if t[1] == 'Int64':
+            t[0] = TipoVar.INT64
+
+        elif t[1] == 'Float64':
+            t[0] = TipoVar.FLOAT64
+
+        elif t[1] == 'Bool':
+            t[0] = TipoVar.BOOLEAN
+
+        elif t[1] == 'Char':
+            t[0] = TipoVar.CHAR
+
+        elif t[1] == 'String':
+            t[0] = TipoVar.STRING
 
 
 # ==============================================================================

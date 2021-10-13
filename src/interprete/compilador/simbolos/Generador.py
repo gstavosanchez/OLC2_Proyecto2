@@ -41,6 +41,8 @@ class Generador:
         self.is_to_upper = False
         # Lower Case
         self.is_to_lower = False
+        # validate division
+        self.is_validate_div = False
 
     def clean(self):
         # contadores
@@ -66,6 +68,8 @@ class Generador:
         self.is_to_upper = False
         # Lower Case
         self.is_to_lower = False
+        # validate division
+        self.is_validate_div = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -237,7 +241,7 @@ class Generador:
         self.set_code(data)
 
     def print_line_break(self):
-        """Salto de Linea"""
+        """Print Salto de Linea"""
         self.print_new(TipoPrint.CARACTER, 10)
 
     def print_space(self):
@@ -255,6 +259,18 @@ class Generador:
         self.print_new(TipoPrint.CARACTER, 108)  # L
         self.print_new(TipoPrint.CARACTER, 115)  # S
         self.print_new(TipoPrint.CARACTER, 101)  # E
+
+    def print_math_err(self):
+        self.print_new(TipoPrint.CARACTER, 77)
+        self.print_new(TipoPrint.CARACTER, 97)
+        self.print_new(TipoPrint.CARACTER, 116)
+        self.print_new(TipoPrint.CARACTER, 104)
+        self.print_new(TipoPrint.CARACTER, 69)
+        self.print_new(TipoPrint.CARACTER, 114)
+        self.print_new(TipoPrint.CARACTER, 114)
+        self.print_new(TipoPrint.CARACTER, 111)
+        self.print_new(TipoPrint.CARACTER, 114)
+        self.print_line_break()
 
     # --------------------------------------------------------------------------
     # ERROR_LIST
@@ -700,5 +716,42 @@ class Generador:
         self.set_heap('H', '-1', 'FIN CADENA')
         self.nex_heap()
         self.set_stack('P', tmp_ret, 'Guardar donde inica la nueva cadena')
+        self.new_end_funct()
+        self.in_native = False
+
+    def division_validate(self):
+        if self.is_validate_div:
+            return
+
+        self.is_validate_div = True
+        self.in_native = True
+        self.new_begin_func('divValidate')
+
+        # -------------- -> L0..Ln <- --------------
+        end_lb = self.new_label()  # L0: Salida
+        succ_lb = self.new_label()  # L1: Correcto
+        # -------------- -> T0...Tn <- --------------
+        tmp_p = self.new_temp()  # T0 = P + 1
+        tmp_lf = self.new_temp()  # T1 = 5 + 5
+        tmp_rg = self.new_temp()  # T2 = 3 - 3
+        tmp_ret = self.new_temp()  # T3 = result
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_lf, tmp_p)
+        self.new_exp(tmp_p, tmp_p, '1', '+')
+        self.get_stack(tmp_rg, tmp_p)
+
+        # if T2 != 0 { goto L1 }
+        self.new_if(tmp_rg, '0', '!=', succ_lb)
+        # PRINT ERROR
+        self.print_math_err()
+        self.new_exp(tmp_ret, '0', '', '', 'resultado incorrecto')
+        self.new_goto(end_lb)
+        # SUCCESS
+        self.set_label(succ_lb)
+        self.new_exp(tmp_ret, tmp_lf, tmp_rg, '/')
+        # EXIT
+        self.set_label(end_lb)
+        self.set_stack('P', tmp_ret, 'gurdar resultado')
         self.new_end_funct()
         self.in_native = False

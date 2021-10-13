@@ -12,11 +12,20 @@ CORS(app)
 @app.route('/')
 def index():
     return jsonify(main.get_proyect_data())
+
+
 # Compilar
 @app.route('/compilar', methods=['POST'])
 def compile():
     data = main.execute(request.json['code'])
     return jsonify(data)
+
+
+@app.route('/dev', methods=['GET'])
+def dev_compile():
+    data = main.dev_compilier()
+    return jsonify(data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

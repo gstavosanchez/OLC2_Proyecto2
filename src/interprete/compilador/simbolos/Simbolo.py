@@ -2,21 +2,29 @@ from src.interprete.compilador.tipos.Tipo import TipoVar
 
 
 class Simbolo:
-    def __init__(self, id: str, type: TipoVar, position, global_var, in_heap):
+    def __init__(
+        self,
+        id: str,
+        type: TipoVar,
+        position: int,
+        is_global: bool,
+        in_heap: bool = False,
+    ):
         """Constructor
 
         Args:
-            id (str): identificadro de la variable
-            tipo (TipoVar): tipo de variable
-            posicion (any):
-            global_var (any):
-            in_heap (any):
+            id (str): id de la variable
+            type (TipoVar): tipo de variable
+            position (int): posicion
+            is_global (bool): si es global o no
+            in_heap (bool, optional): pertenece al heap. Defaults to False.
         """
         self.id = id
         self.type = type
-        self.globa_var = global_var
-        self.in_heap = in_heap
-        self.position = position
+        self.is_global: bool = is_global
+        self.in_heap: bool = in_heap
+        self.position: int = position
+        self.value = None
 
     # ==========================================================================
     # SET AND GET: ID
@@ -39,16 +47,16 @@ class Simbolo:
     # ==========================================================================
     # SET AND GET: GLOBA_VAR
     # ==========================================================================
-    def set_global_var(self, global_var):
-        self.globa_var = global_var
+    def set_is_global(self, global_var: bool):
+        self.is_global = global_var
 
-    def get_global_var(self):
-        return self.globa_var
+    def get_is_global(self):
+        return self.is_global
 
     # ==========================================================================
     # SET AND GET: IN_HEAP
     # ==========================================================================
-    def set_in_heap(self, in_heap):
+    def set_in_heap(self, in_heap: bool):
         self.in_heap = in_heap
 
     def get_in_heap(self):
@@ -57,8 +65,17 @@ class Simbolo:
     # ==========================================================================
     # SET AND GET: POSITION
     # ==========================================================================
-    def set_position(self, position):
+    def set_position(self, position: int):
         self.position = position
 
     def get_position(self):
         return self.position
+
+    # ==========================================================================
+    # VALUE
+    # ==========================================================================
+    def set_value(self, value):
+        self.value = value
+
+    def get_value(self):
+        return self.value

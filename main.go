@@ -5,76 +5,48 @@ import "fmt"
 var P, H float64
 var stack [30101999]float64
 var heap [30101999]float64
-var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20 float64
+var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13 float64
 
 // -----------------------------------------------------------
 // FUNCIONES NATIVAS
-func toUpperCase() {
-	t1 = H
-	t2 = P + 1
-	t3 = stack[int(t2)]
+func divValidate() {
+	t1 = P + 1
+	t2 = stack[int(t1)]
+	t1 = t1 + 1
+	t3 = stack[int(t1)]
+	if t3 != 0 {
+		goto L1
+	}
+	fmt.Printf("%c", int(77))
+	fmt.Printf("%c", int(97))
+	fmt.Printf("%c", int(116))
+	fmt.Printf("%c", int(104))
+	fmt.Printf("%c", int(69))
+	fmt.Printf("%c", int(114))
+	fmt.Printf("%c", int(114))
+	fmt.Printf("%c", int(111))
+	fmt.Printf("%c", int(114))
+	fmt.Printf("%c", int(10))
+	t4 = 0 // resultado incorrecto
+	goto L0
 L1:
-	t4 = heap[int(t3)]
-	if t4 == -1 {
-		goto L0
-	}
-	if t4 < 97 {
-		goto L2
-	}
-	if t4 > 122 {
-		goto L2
-	}
-	t4 = t4 - 32 //Convertir en mayuscula
-L2:
-	heap[int(H)] = t4
-	H = H + 1
-	t3 = t3 + 1
-	goto L1
+	t4 = t2 / t3
 L0:
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-	stack[int(P)] = t1 // Guardar donde inica la nueva cadena
+	stack[int(P)] = t4 // gurdar resultado
 	return
 }
 func printStr() {
-	t7 = P + 1 // Puntero del parametro
-	t8 = stack[int(t7)]
-L4:
-	t9 = heap[int(t8)]
-	if t9 == -1 {
-		goto L3
-	}
-	fmt.Printf("%c", int(t9))
-	t8 = t8 + 1 //aumentar el contador del heap
-	goto L4
+	t9 = P + 1 // Puntero del parametro
+	t10 = stack[int(t9)]
 L3:
-	return
-}
-func toLowerCase() {
-	t13 = H
-	t14 = P + 1
-	t15 = stack[int(t14)]
-L6:
-	t16 = heap[int(t15)]
-	if t16 == -1 {
-		goto L5
+	t11 = heap[int(t10)]
+	if t11 == -1 {
+		goto L2
 	}
-	if t16 < 65 {
-		goto L7
-	}
-	if t16 > 90 {
-		goto L7
-	}
-	t16 = t16 + 32 //Convertir en mayuscula
-L7:
-	heap[int(H)] = t16
-	H = H + 1
-	t15 = t15 + 1
-	goto L6
-L5:
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-	stack[int(P)] = t13 // Guardar donde inica la nueva cadena
+	fmt.Printf("%c", int(t11))
+	t10 = t10 + 1 //aumentar el contador del heap
+	goto L3
+L2:
 	return
 }
 
@@ -84,51 +56,66 @@ L5:
 func main() {
 	P = 0 // Puntero Stack
 	H = 0 //Puntero Heap
+	// -----------------------------------------------------------
+	// INICIO EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+	// INICIO PRIMITIVO
+	// 56
+	// FIN PRIMITIVO
+	// -----------------------------------------------------------
+
+	// -----------------------------------------------------------
+	// INICIO EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+	// INICIO PRIMITIVO
+	// 5
+	// FIN PRIMITIVO
+	// -----------------------------------------------------------
+
+	// -----------------------------------------------------------
+	// INICIO PRIMITIVO
+	// 5
+	// FIN PRIMITIVO
+	// -----------------------------------------------------------
+
+	t0 = 5 - 5
+	// FIN EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+	// -----------------------------------------------------------
+	// PASO DE PARAMETROS
+	t5 = P + 0
+	// 1ER PARAMETRO
+	t5 = t5 + 1
+	stack[int(t5)] = 56
+	// 2DO PARAMETRO
+	t5 = t5 + 1
+	stack[int(t5)] = t0
+	// FIN PASO DE PARAMETROS
+	// -----------------------------------------------------------
+	// CAMBIO DE ENTORNO
+	P = P + 0
+	divValidate()
+	// GUARDAR EL RETURN DE LA FUNCION
+	t6 = stack[int(P)]
+	P = P - 0
+	// FIN EXPRESION ARITMETICA
+	// -----------------------------------------------------------
+
+	// -----------------------------------------------------------
+	// ASIGNACION: A
+	stack[int(0)] = t6
+	// FIN ASIGNACION
+	// -----------------------------------------------------------
 
 	// -----------------------------------------------------------
 	// INICIO PRINT
 	// -----------------------------------------------------------
-	// INICIO PRIMITIVO
-	// HOLA
-
-	t0 = H
-	heap[int(H)] = 104 // h
-	H = H + 1
-	heap[int(H)] = 111 // o
-	H = H + 1
-	heap[int(H)] = 108 // l
-	H = H + 1
-	heap[int(H)] = 97 // a
-	H = H + 1
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-
-	// FIN PRIMITIVO
+	// ACCESO A VARIABLE: A
+	t7 = stack[int(0)]
+	// FIN ACCESO
 	// -----------------------------------------------------------
 
-	t5 = P + 0
-	t5 = t5 + 1
-	stack[int(t5)] = t0
-	P = P + 0
-	toUpperCase()
-	t6 = stack[int(P)]
-	P = P - 0
-
-	// -----------------------------------------------------------
-	// GUARDAR VARIABLE EN STACK
-	t10 = P + 0
-	t10 = t10 + 1
-	stack[int(t10)] = t6
-	// -----------------------------------------------------------
-
-	P = P + 0
-	printStr()
-
-	// GUARDAR RETURN DE LA FUNCION
-	t11 = stack[int(P)]
-	// REGRESO DE ENTORNO
-	P = P - 0
-
+	fmt.Printf("%g", float64(t7))
 	fmt.Printf("%c", int(10))
 	// FIN PRINT
 	// -----------------------------------------------------------
@@ -137,14 +124,26 @@ func main() {
 	// INICIO PRINT
 	// -----------------------------------------------------------
 	// INICIO PRIMITIVO
-	// MUNDO
+	// ADIOS MUNDO
 
-	t12 = H
-	heap[int(H)] = 77 // M
+	t8 = H
+	heap[int(H)] = 97 // a
 	H = H + 1
-	heap[int(H)] = 85 // U
+	heap[int(H)] = 100 // d
 	H = H + 1
-	heap[int(H)] = 78 // N
+	heap[int(H)] = 105 // i
+	H = H + 1
+	heap[int(H)] = 111 // o
+	H = H + 1
+	heap[int(H)] = 115 // s
+	H = H + 1
+	heap[int(H)] = 32 //
+	H = H + 1
+	heap[int(H)] = 109 // m
+	H = H + 1
+	heap[int(H)] = 117 // u
+	H = H + 1
+	heap[int(H)] = 110 // n
 	H = H + 1
 	heap[int(H)] = 100 // d
 	H = H + 1
@@ -156,28 +155,20 @@ func main() {
 	// FIN PRIMITIVO
 	// -----------------------------------------------------------
 
-	t17 = P + 0
-	t17 = t17 + 1
-	stack[int(t17)] = t12
-	P = P + 0
-	toLowerCase()
-	t18 = stack[int(P)]
-	P = P - 0
-
 	// -----------------------------------------------------------
 	// GUARDAR VARIABLE EN STACK
-	t19 = P + 0
-	t19 = t19 + 1
-	stack[int(t19)] = t18
+	t12 = P + 1
+	t12 = t12 + 1
+	stack[int(t12)] = t8
 	// -----------------------------------------------------------
 
-	P = P + 0
+	P = P + 1
 	printStr()
 
 	// GUARDAR RETURN DE LA FUNCION
-	t20 = stack[int(P)]
+	t13 = stack[int(P)]
 	// REGRESO DE ENTORNO
-	P = P - 0
+	P = P - 1
 
 	fmt.Printf("%c", int(10))
 	// FIN PRINT

@@ -31,3 +31,13 @@ def get_proyect_data():
         'Nombre': 'Elmer Gustavo Sanchez Garcia',
         'Carnet': '201801351',
     }
+
+
+def dev_compilier():
+    f = open(
+        'C:\\Users\\elmer\\Downloads\\2S2021\\Compiladores 2\\Proyecto_2\\src\\controller\\input.jl',
+        'r',
+    )
+    input_str = f.read()
+    return execute(input_str)
+    # execute(input_str)
