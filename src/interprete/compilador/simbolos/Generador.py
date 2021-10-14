@@ -200,6 +200,15 @@ class Generador:
         """Salto de linea"""
         self.set_code('\n')
 
+    def begin_comment(self, text: str):
+        self.new_comment_line()
+        self.new_commnet(text)
+
+    def end_comment(self, text: str):
+        self.new_commnet(text)
+        self.new_comment_line()
+        self.line_break()
+
     # --------------------------------------------------------------------------
     # EXPRESIONES
     # --------------------------------------------------------------------------

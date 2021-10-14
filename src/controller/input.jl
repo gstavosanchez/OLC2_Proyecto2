@@ -1,3 +1,7 @@
-a = 56 / (5 - 5);
-println(a);
-println("adios mundo");
+if 10 == 5 
+    println(10);
+elseif 11 == 11
+    println(25);
+else
+    println(1);
+end;

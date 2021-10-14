@@ -20,7 +20,7 @@ class AccesoVariable(Instruccion):
         if var_simbol is None:
             self.end_commnet()
             self.generador.new_error(
-                f'No existe la variable {self.id}', self.line, self.column
+                f'No existe la variable "{self.id}"', self.line, self.column
             )
             return
 

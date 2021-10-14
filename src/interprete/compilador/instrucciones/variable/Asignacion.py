@@ -1,17 +1,20 @@
 from src.interprete.compilador.abstracto.Valor import Valor
-from src.interprete.compilador.tipos.Tipo import TipoVar
+from src.interprete.compilador.tipos.Tipo import TipoScoope, TipoVar
 from src.interprete.compilador.simbolos.Entorno import Entorno
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 
 
 class Asignacion(Instruccion):
-    def __init__(self, id, type, value, line, column):
+    def __init__(
+        self, id, type, value, line, column, scoope=TipoScoope.UNDEFINED
+    ):
         super().__init__(line, column)
         self.id = id
         self.value: Instruccion = value
         self.type = type
         self.line = line
         self.column = column
+        self.scoope: TipoScoope = scoope
 
     def compilar(self, entorno: Entorno):
         # Compilar el valor
@@ -30,9 +33,17 @@ class Asignacion(Instruccion):
                 )
                 return
         type_aux = self.type if self.type else value_compiled.get_type()
-        new_var = entorno.save_variable(
-            self.id, type_aux, value_compiled.get_type() == TipoVar.STRUCT
-        )
+        new_var = None
+        # revisar que local no puede ir en el entorno global
+        if self.scoope == TipoScoope.GLOBAL:
+            env_global = entorno.get_global()
+            new_var = env_global.save_variable(
+                self.id, type_aux, value_compiled.get_type() == TipoVar.STRUCT
+            )
+        else:
+            new_var = entorno.save_variable(
+                self.id, type_aux, value_compiled.get_type() == TipoVar.STRUCT
+            )
 
         if new_var is None:
             self.generador.new_error(
@@ -40,6 +51,7 @@ class Asignacion(Instruccion):
                 self.line,
                 self.column,
             )
+            return
         self.generador.new_comment_line()
         self.generador.new_commnet(f'Asignacion: {self.id}')
         tmp_pos = new_var.get_position()

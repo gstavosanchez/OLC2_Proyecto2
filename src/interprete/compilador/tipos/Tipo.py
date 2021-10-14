@@ -44,6 +44,11 @@ class TipoUpLowCase(Enum):
     UPPER = 1           # Upper Case
     LOWER = 2           # Lower Case
 
+class TipoScoope(Enum):
+    GLOBAL = 1          # global
+    LOCAL = 2           # local
+    UNDEFINED = 3       # NO definido
+
     
 def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:

@@ -44,11 +44,18 @@ class Aritmetica(Instruccion):
         elif self.type == TipoArtimetico.DIV:
             return self.compare_division(left, right, entorno)
 
+        left_value = left if left else Valor('0', TipoVar.FLOAT64, False)
+
+        if self.is_valid(left_value, right) is False:
+            self.generador.new_error('Tipo invalido', self.line, self.column)
+            print('error de tipos')
+            return
+
         operation = self.get_type(self.type)
         temp = self.generador.new_temp()  # Nuevo Temporal -> t1...tn
-
-        left_value = left.get_value() if left else '0'
-        self.generador.new_exp(temp, left_value, right.get_value(), operation)
+        self.generador.new_exp(
+            temp, left_value.get_value(), right.get_value(), operation
+        )
 
         self.generador.new_commnet('fin expresion aritmetica')
         self.generador.new_comment_line()
@@ -209,3 +216,16 @@ class Aritmetica(Instruccion):
         self.generador.line_break()
 
         return Valor(return_p, TipoVar.FLOAT64, True)
+
+    def is_valid(self, left: Valor, right: Valor):
+        if (
+            left.get_type() == TipoVar.INT64
+            or left.get_type() == TipoVar.FLOAT64
+        ):
+            if (
+                right.get_type() == TipoVar.INT64
+                or right.get_type() == TipoVar.FLOAT64
+            ):
+                return True
+
+        return False

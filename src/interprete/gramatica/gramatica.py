@@ -1,17 +1,20 @@
+from src.interprete.compilador.instrucciones.Statement import Statement
 from src.interprete.compilador.expresiones.AccesoVa import AccesoVariable
+from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
+from src.interprete.compilador.expresiones.Logica import Logica
+from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
+from src.interprete.compilador.expresiones.Primitivo import Primitivo
+from src.interprete.compilador.expresiones.Relacional import Relacional
+from src.interprete.compilador.instrucciones.control.IF import If
+from src.interprete.compilador.instrucciones.Print import Print
 from src.interprete.compilador.instrucciones.variable.Asignacion import (
     Asignacion,
 )
-from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
-from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
-from src.interprete.compilador.expresiones.Logica import Logica
-from src.interprete.compilador.expresiones.Primitivo import Primitivo
-from src.interprete.compilador.expresiones.Relacional import Relacional
-from src.interprete.compilador.instrucciones.Print import Print
 from src.interprete.compilador.tipos.Tipo import (
     TipoArtimetico,
     TipoLogico,
     TipoRelational,
+    TipoScoope,
     TipoUpLowCase,
     TipoVar,
 )
@@ -23,7 +26,13 @@ reservadas = {
     # INSTRUCCIONES
     'print': 'RPRINT',
     'println': 'RPRINTLN',
+    'if': 'RIF',
+    'elseif': 'RELSEIF',
+    'else': 'RELSE',
+    'end': 'REND',
     # RESERVADAS
+    'global': 'RGLOBAL',
+    'local': 'RLOCAL',
     'true': 'RTRUE',
     'false': 'RFALSE',
     'uppercase': 'RUPPER',
@@ -229,6 +238,11 @@ def p_instrucciones_instruccion(t):
     t[0] = [t[1]]
 
 
+def p_statement(t):
+    '''statement        : instrucciones'''
+    t[0] = Statement(t[1], t.lineno(1), t.lexpos(0))
+
+
 # ==============================================================================
 # INSTRUCCION
 # ==============================================================================
@@ -236,6 +250,8 @@ def p_inst(t):
     '''
     instruccion         : print_inst fin_inst
                         | asign_inst fin_inst
+                        | if_inst fin_inst
+
     '''
     t[0] = t[1]
 
@@ -281,14 +297,100 @@ def p_inst_asignacion(t):
     '''
     asign_inst          : ID IGUAL expresion DPUNTOS DPUNTOS tipo
                         | ID IGUAL expresion
+                        | RGLOBAL ID IGUAL expresion
+                        | RLOCAL ID IGUAL expresion
+                        | RGLOBAL ID IGUAL expresion DPUNTOS DPUNTOS tipo
+                        | RLOCAL ID IGUAL expresion DPUNTOS DPUNTOS tipo
     '''
+    # ID IGUAL expresion DPUNTOS DPUNTOS tipo
     if len(t) == 7:
         t[0] = Asignacion(
             t[1], t[6], t[3], t.lineno(2), find_column(input_data, t.slice[2])
         )
+    # ID IGUAL expresion
     elif len(t) == 4:
         t[0] = Asignacion(
             t[1], None, t[3], t.lineno(2), find_column(input_data, t.slice[2])
+        )
+    elif len(t) == 5:
+        # RGLOBAL ID IGUAL expresion
+        if t[1] == 'global':
+            t[0] = Asignacion(
+                t[2],
+                None,
+                t[4],
+                t.lineno(3),
+                find_column(input_data, t.slice[3]),
+                TipoScoope.GLOBAL,
+            )
+        # RLOCAL ID IGUAL expresion
+        elif t[1] == 'local':
+            t[0] = Asignacion(
+                t[2],
+                None,
+                t[4],
+                t.lineno(3),
+                find_column(input_data, t.slice[3]),
+                TipoScoope.LOCAL,
+            )
+    elif len(t) == 8:
+        # RGLOBAL ID IGUAL expresion DPUNTOS DPUNTOS tipo
+        if t[1] == 'global':
+            t[0] = Asignacion(
+                t[2],
+                t[7],
+                t[4],
+                t.lineno(3),
+                find_column(input_data, t.slice[3]),
+                TipoScoope.GLOBAL,
+            )
+        # RLOCAL ID IGUAL expresion DPUNTOS DPUNTOS tipo
+        else:
+            t[0] = Asignacion(
+                t[2],
+                t[7],
+                t[4],
+                t.lineno(3),
+                find_column(input_data, t.slice[3]),
+                TipoScoope.LOCAL,
+            )
+
+
+# ------------------------------------------------------------------------------
+# IF
+def p_inst_if(t):
+    '''
+    if_inst             : RIF expresion statement REND
+                        | RIF expresion statement RELSE statement REND
+                        | RIF expresion statement else_if_list REND
+    '''
+    if len(t) == 5:
+        t[0] = If(t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]))
+    elif len(t) == 7:
+        t[0] = If(
+            t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]), t[5]
+        )
+    elif len(t) == 6:
+        t[0] = If(
+            t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]), t[4]
+        )
+
+
+def p_inst_if_elseif(t):
+    '''
+    else_if_list        : RELSEIF expresion statement
+                        | RELSEIF expresion statement RELSE statement
+                        | RELSEIF expresion statement else_if_list
+    '''
+    if len(t) == 4:
+        t[0] = If(t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]))
+    elif len(t) == 6:
+        t[0] = If(
+            t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]), t[5]
+        )
+    elif len(t) == 5:
+        t[0] = If(
+            t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]), t[4]
         )
 
 

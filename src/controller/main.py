@@ -16,6 +16,10 @@ def execute(input_str: str):
     ast.compilar(global_enviroment)
 
     str_output = str(generator.get_code())
+    str_error = str(generator.get_erro_str())
+    print('-------------- -> ERRORES <- -------------')
+    print(str_error)
+    print('')
     print('-------------- -> SALIDA <- --------------')
     print(f'Entrada: {input_str}')
     print('')
