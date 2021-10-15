@@ -1,4 +1,4 @@
-from src.interprete.compilador.instrucciones.Statement import Statement
+from src.interprete.compilador.instrucciones.control.For import For
 from src.interprete.compilador.expresiones.AccesoVa import AccesoVariable
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
 from src.interprete.compilador.expresiones.Logica import Logica
@@ -6,7 +6,13 @@ from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
 from src.interprete.compilador.expresiones.Primitivo import Primitivo
 from src.interprete.compilador.expresiones.Relacional import Relacional
 from src.interprete.compilador.instrucciones.control.IF import If
+from src.interprete.compilador.instrucciones.control.While import While
 from src.interprete.compilador.instrucciones.Print import Print
+from src.interprete.compilador.instrucciones.Statement import Statement
+from src.interprete.compilador.instrucciones.tranferencia.Break import Break
+from src.interprete.compilador.instrucciones.tranferencia.Continue import (
+    Continue,
+)
 from src.interprete.compilador.instrucciones.variable.Asignacion import (
     Asignacion,
 )
@@ -29,7 +35,10 @@ reservadas = {
     'if': 'RIF',
     'elseif': 'RELSEIF',
     'else': 'RELSE',
-    'end': 'REND',
+    'while': 'RWHILE',
+    'break': 'RBREAK',
+    'continue': 'RCONTINUE',
+    'for': 'RFOR',
     # RESERVADAS
     'global': 'RGLOBAL',
     'local': 'RLOCAL',
@@ -42,6 +51,8 @@ reservadas = {
     'Bool': 'RBOOL',
     'Char': 'RCHAR',
     'String': 'RSTRING',
+    'in': 'RIN',
+    'end': 'REND',
 }
 # ==============================================================================
 # TOKENS
@@ -252,6 +263,11 @@ def p_inst(t):
                         | asign_inst fin_inst
                         | if_inst fin_inst
 
+                        | while_inst fin_inst
+                        | for_inst fin_inst
+
+                        | break_inst fin_inst
+                        | continue_inst fin_inst
     '''
     t[0] = t[1]
 
@@ -391,6 +407,53 @@ def p_inst_if_elseif(t):
     elif len(t) == 5:
         t[0] = If(
             t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1]), t[4]
+        )
+
+
+# ------------------------------------------------------------------------------
+# WHILE
+def p_inst_while(t):
+    '''
+    while_inst          : RWHILE expresion statement REND
+    '''
+    if len(t) == 5:
+        if t[1] == 'while':
+            t[0] = While(
+                t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1])
+            )
+
+
+# ------------------------------------------------------------------------------
+# TRANSEFERENCIA
+
+# BREAK
+def p_inst_break(t):
+    'break_inst         : RBREAK'
+    t[0] = Break(t.lineno(1), find_column(input_data, t.slice[1]))
+
+
+# CONTINUE
+def p_inst_continue(t):
+    'continue_inst      : RCONTINUE'
+    t[0] = Continue(t.lineno(1), find_column(input_data, t.slice[1]))
+
+
+# ------------------------------------------------------------------------------
+# FOR
+
+# for normal
+def p_ints_for(t):
+    '''
+    for_inst            : RFOR ID RIN expresion DPUNTOS expresion statement REND
+    '''
+    if len(t) == 9:
+        t[0] = For(
+            t[2],
+            t[4],
+            t[7],
+            t.lineno(1),
+            find_column(input_data, t.slice[1]),
+            t[6],
         )
 
 

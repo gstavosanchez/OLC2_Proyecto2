@@ -23,8 +23,8 @@ class Relacional(Instruccion):
         self.column = column
 
     def compilar(self, entorno: Entorno):
-        self.generador.new_comment_line()
-        self.generador.new_commnet('INICIO EXPRESION RELACIONAL')
+        # self.generador.new_comment_line()
+        # self.generador.new_commnet('INICIO EXPRESION RELACIONAL')
         left: Valor = self.left.compilar(entorno)
         right = None
         value = Valor(None, TipoVar.BOOLEAN, False)
@@ -124,8 +124,8 @@ class Relacional(Instruccion):
             value.set_true_label(self.true_label)
             value.set_false_label(self.false_label)
 
-        self.generador.new_commnet('FIN EXPRESION RELACIONAL')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('FIN EXPRESION RELACIONAL')
+        # self.generador.new_comment_line()
         return value
 
     def get_operation(self, operation: TipoRelational):

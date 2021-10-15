@@ -23,8 +23,8 @@ class Aritmetica(Instruccion):
         self.column = column
 
     def compilar(self, entorno: Entorno):
-        self.generador.new_comment_line()
-        self.generador.new_commnet('inicio expresion aritmetica')
+        # self.generador.new_comment_line()
+        # self.generador.new_commnet('inicio expresion aritmetica')
         left: Valor = self.left.compilar(entorno) if self.left else None
         right: Valor = self.right.compilar(entorno)
 
@@ -57,8 +57,8 @@ class Aritmetica(Instruccion):
             temp, left_value.get_value(), right.get_value(), operation
         )
 
-        self.generador.new_commnet('fin expresion aritmetica')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('fin expresion aritmetica')
+        # self.generador.new_comment_line()
         self.generador.line_break()
 
         return Valor(temp, TipoVar.FLOAT64, True)
@@ -111,8 +111,8 @@ class Aritmetica(Instruccion):
         self.generador.new_goto(while_lb)
         self.generador.set_label(exit_lb)  # L1: -> exit label
 
-        self.generador.new_commnet('fin expresion aritmetica')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('fin expresion aritmetica')
+        # self.generador.new_comment_line()
         return Valor(tmp_result, TipoVar.FLOAT64, True)
 
     def set_labels(self):
@@ -146,8 +146,8 @@ class Aritmetica(Instruccion):
         self.generador.new_commnet('Regreso entorno global')
         self.generador.ret_entorno(entorno.get_size())
 
-        self.generador.new_commnet('fin expresion aritmetica')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('fin expresion aritmetica')
+        # self.generador.new_comment_line()
         self.generador.line_break()
         return Valor(return_p, TipoVar.STRING, True)
 
@@ -178,8 +178,8 @@ class Aritmetica(Instruccion):
         self.generador.get_stack(return_p, 'P')
         self.generador.ret_entorno(entorno.get_size())
 
-        self.generador.new_commnet('fin expresion aritmetica')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('fin expresion aritmetica')
+        # self.generador.new_comment_line()
         self.generador.line_break()
 
         return Valor(return_p, TipoVar.STRING, True)
@@ -211,8 +211,8 @@ class Aritmetica(Instruccion):
         self.generador.get_stack(return_p, 'P')
         self.generador.ret_entorno(entorno.get_size())
 
-        self.generador.new_commnet('fin expresion aritmetica')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('fin expresion aritmetica')
+        # self.generador.new_comment_line()
         self.generador.line_break()
 
         return Valor(return_p, TipoVar.FLOAT64, True)

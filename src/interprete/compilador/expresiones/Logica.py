@@ -22,8 +22,8 @@ class Logica(Instruccion):
         self.column = column
 
     def compilar(self, entorno: Entorno):
-        self.generador.new_comment_line()
-        self.generador.new_commnet('INICIO EXPRESION LOGICA')
+        # self.generador.new_comment_line()
+        # self.generador.new_commnet('INICIO EXPRESION LOGICA')
 
         self.set_labels()
         and_or_lb = ''
@@ -51,8 +51,8 @@ class Logica(Instruccion):
             value_ret.set_true_label(self.true_label)
             value_ret.set_false_label(self.false_label)
 
-            self.generador.new_commnet('FIN EXPRESION LOGICA')
-            self.generador.new_comment_line()
+            # self.generador.new_commnet('FIN EXPRESION LOGICA')
+            # self.generador.new_comment_line()
 
             return value_ret
 
@@ -73,8 +73,8 @@ class Logica(Instruccion):
             )
             return
 
-        self.generador.new_commnet('FIN EXPRESION LOGICA')
-        self.generador.new_comment_line()
+        # self.generador.new_commnet('FIN EXPRESION LOGICA')
+        # self.generador.new_comment_line()
         valor = Valor(None, TipoVar.BOOLEAN, False)
         valor.set_true_label(self.true_label)
         valor.set_false_label(self.false_label)

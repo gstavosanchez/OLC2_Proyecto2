@@ -32,10 +32,11 @@ class If(Instruccion):
             )
             self.generador.end_comment('Fin If')
             return
-        new_env = Entorno(entorno)
+        # Revisar que si crea un nuevo entorno
+        # new_env = Entorno(entorno)
         self.generador.set_label(condition.get_true_label())
         # -------------- -> EJECUTAR INSTRUCCINOES <- --------------
-        self.inst_list.compilar(new_env)
+        self.inst_list.compilar(entorno)
         # -------------- -> FIN DE EJECUCION  <- --------------
 
         if self.else_st is not None:
@@ -44,7 +45,7 @@ class If(Instruccion):
             self.generador.set_label(condition.get_false_label())
 
             # -------------- -> EJECUTAR INSTRUCCIONES <- --------------
-            print(self.else_st)
+            # print(self.else_st)
             # for inst in self.else_st:
             #     inst.compilar(new_env)
             self.else_st.compilar(entorno)

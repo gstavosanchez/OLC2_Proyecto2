@@ -27,7 +27,7 @@ class Asignacion(Instruccion):
         if self.type:
             if self.type != value_compiled.get_type():
                 self.generador.new_error(
-                    f'{self.id} no se le puede asignar ese tipo',
+                    f'"{self.id}" no se le puede asignar ese tipo',
                     self.line,
                     self.column,
                 )
@@ -47,7 +47,7 @@ class Asignacion(Instruccion):
 
         if new_var is None:
             self.generador.new_error(
-                f'{self.id} no puede ser declarada en este scoop',
+                f'"{self.id}" no puede ser declarada en este scoop',
                 self.line,
                 self.column,
             )
