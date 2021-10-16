@@ -161,8 +161,8 @@ class Generador:
             '// ===========================================================\n'
         )
         text += 'func main() {\n'
-        text += '\t P = 0 // Puntero Stack \n'
-        text += '\t H = 0 //Puntero Heap \n'
+        text += '\t P = 0; // Puntero Stack \n'
+        text += '\t H = 0; //Puntero Heap \n'
         text += self.code + '\n'
         text += '}\n'
         return str(text)
@@ -170,7 +170,7 @@ class Generador:
     # -------------- -> HEADER <- --------------
     def get_header(self):
         text = 'package main\n'
-        text += 'import "fmt"\n\n'
+        text += 'import (\n\t"fmt")\n\n'
         # Declaracion de variables
         text += 'var P, H float64;\n'
         text += 'var stack [30101999]float64;\n'
@@ -246,7 +246,11 @@ class Generador:
             value (any): valor a imprimir
         """
         tipo, casteo = get_type_print(type)
-        data = f'fmt.Printf("%{tipo}", {casteo}({value}));\n'
+        data = ''
+        if casteo is None:
+            data = f'fmt.Printf("%{tipo}", {value});\n'
+        else:
+            data = f'fmt.Printf("%{tipo}", {casteo}({value}));\n'
         self.set_code(data)
 
     def print_line_break(self):

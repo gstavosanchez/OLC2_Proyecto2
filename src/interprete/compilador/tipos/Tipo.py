@@ -53,4 +53,4 @@ class TipoScoope(Enum):
 def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:
         return 'c', 'int'
-    return 'g', 'float64'
+    return 'g', None

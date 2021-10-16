@@ -27,11 +27,9 @@ class For(Instruccion):
         pass
 
     def for_normal(self, value_1: Valor, value_2: Valor, entorno: Entorno):
-        if (
-            value_1.get_type() != TipoVar.INT64
-            or value_2.get_type() != TipoVar.INT64
-        ):
-            self.generador.new_error('Expresion no es de tipo Int64')
+
+        if self.is_valid(value_1, value_2) is False:
+            self.generador.new_error('Expresion no es de tipo Int64 or Float64')
             return
 
         new_var = entorno.save_variable(self.id_var, TipoVar.FLOAT64, False)
@@ -97,3 +95,16 @@ class For(Instruccion):
 
     def for_each(self):
         pass
+
+    def is_valid(self, left: Valor, right: Valor):
+        if (
+            left.get_type() == TipoVar.INT64
+            or left.get_type() == TipoVar.FLOAT64
+        ):
+            if (
+                right.get_type() == TipoVar.INT64
+                or right.get_type() == TipoVar.FLOAT64
+            ):
+                return True
+
+        return False
