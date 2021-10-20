@@ -6,7 +6,8 @@
 
 
 function sumar(a::Int64):: Int64
-    return a * sumar(a - 1);
+    # return a * sumar(a - 1);
+    return a * 50;
 end;
 
 a = sumar(5);

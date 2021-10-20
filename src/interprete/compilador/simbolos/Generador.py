@@ -181,6 +181,8 @@ class Generador:
             self.new_commnet('Recuperar temporales')
             self.line_break()
 
+            self.new_exp(tmp, 'P', pos, '+')
+
             for value in self.temp_list:
                 size += 1
                 self.get_stack(value, tmp)

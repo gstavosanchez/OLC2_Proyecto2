@@ -8,13 +8,12 @@ class Statement(Instruccion):
         self.ints_list = list_inst
 
     def compilar(self, entorno: Entorno):
-        print(self.ints_list)
-        # try:
-        for inst in self.ints_list:
-            val_ret = inst.compilar(entorno)
-        # except Exception:
-        #     print(Exception)
-        #     print('error al compilar lista de instrucciones')
+        try:
+            for inst in self.ints_list:
+                inst.compilar(entorno)
+        except Exception:
+            print(Exception)
+            print('error al compilar lista de instrucciones')
 
     def set_labels(self):
         pass

@@ -31,6 +31,8 @@ class AccesoVariable(Instruccion):
 
         if not var_simbol.get_is_global():
             tmp_pos = self.generador.new_temp()
+            self.generador.free_temp(tmp_pos)  # FIXME: Revisar
+            print('Livero a temp pos: ', tmp_pos)
             self.generador.new_exp(
                 tmp_pos,
                 'P',
@@ -44,6 +46,7 @@ class AccesoVariable(Instruccion):
             self.end_commnet()
             return Valor(tmp_var, var_simbol.get_type(), True)
 
+        self.generador.free_temp(tmp_var)  # FIXME: REVISAR
         self.set_labels()
 
         self.generador.new_if(tmp_var, '1', '==', self.true_label)
