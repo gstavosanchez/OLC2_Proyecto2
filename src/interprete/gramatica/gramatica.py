@@ -1,3 +1,7 @@
+from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
+from src.interprete.compilador.instrucciones.tranferencia.Return import Return
+from src.interprete.compilador.instrucciones.function.Function import Funcion
+from src.interprete.compilador.simbolos.Parametro import Parametro
 from src.interprete.compilador.instrucciones.control.For import For
 from src.interprete.compilador.expresiones.AccesoVa import AccesoVariable
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
@@ -39,6 +43,8 @@ reservadas = {
     'break': 'RBREAK',
     'continue': 'RCONTINUE',
     'for': 'RFOR',
+    'function': 'RFUNCTION',
+    'return': 'RRETURN',
     # RESERVADAS
     'global': 'RGLOBAL',
     'local': 'RLOCAL',
@@ -51,6 +57,7 @@ reservadas = {
     'Bool': 'RBOOL',
     'Char': 'RCHAR',
     'String': 'RSTRING',
+    'void': 'RVOID',
     'in': 'RIN',
     'end': 'REND',
 }
@@ -266,8 +273,12 @@ def p_inst(t):
                         | while_inst fin_inst
                         | for_inst fin_inst
 
+                        | function_inst fin_inst
+                        | call_funct_inst fin_inst
+
                         | break_inst fin_inst
                         | continue_inst fin_inst
+                        | return_inst fin_inst
     '''
     t[0] = t[1]
 
@@ -438,11 +449,23 @@ def p_inst_continue(t):
     t[0] = Continue(t.lineno(1), find_column(input_data, t.slice[1]))
 
 
+# Return
+def p_inst_return(t):
+    '''
+    return_inst         : RRETURN
+                        | RRETURN expresion
+    '''
+    if len(t) == 2:
+        t[0] = Return(None, t.lineno(1), find_column(input_data, t.slice[1]))
+    else:
+        t[0] = Return(t[2], t.lineno(1), find_column(input_data, t.slice[1]))
+
+
 # ------------------------------------------------------------------------------
 # FOR
 
 # for normal
-def p_ints_for(t):
+def p_inst_for(t):
     '''
     for_inst            : RFOR ID RIN expresion DPUNTOS expresion statement REND
     '''
@@ -454,6 +477,95 @@ def p_ints_for(t):
             t.lineno(1),
             find_column(input_data, t.slice[1]),
             t[6],
+        )
+
+
+# ------------------------------------------------------------------------------
+# FUNCIONES
+
+
+def p_tipo_ret(t):
+    '''
+    tipo_return         : DPUNTOS DPUNTOS tipo_funct
+                        |
+    '''
+    if len(t) == 4:
+        t[0] = t[3]
+    else:
+        t[0] = TipoVar.VOID
+
+
+def p_inst_func(t):
+    '''
+    function_inst       : RFUNCTION ID PARA PARC tipo_return statement REND
+                        | RFUNCTION ID PARA list_param PARC tipo_return statement REND
+    '''
+    if len(t) == 7:
+        t[0] = Funcion(
+            t[2],
+            [],
+            t[6],
+            t.lineno(1),
+            find_column(input_data, t.slice[1]),
+            t[5],
+        )
+    else:
+        t[0] = Funcion(
+            t[2],
+            t[4],
+            t[7],
+            t.lineno(1),
+            find_column(input_data, t.slice[1]),
+            t[6],
+        )
+
+
+def p_list_param(t):
+    '''
+    list_param          : list_param COMA parametro
+                        | parametro
+    '''
+    if len(t) == 2:
+        t[0] = [t[1]]
+    else:
+        t[1].append(t[3])
+        t[0] = t[1]
+
+
+def p_param(t):
+    '''
+    parametro           : ID DPUNTOS DPUNTOS tipo
+    '''
+    t[0] = Parametro(t[1], t[4])
+
+
+def p_int_call_funct(t):
+    '''
+    call_funct_inst     : ID PARA PARC
+                        | ID PARA expresion_list PARC
+    '''
+    if len(t) == 4:
+        t[0] = AccesoFuncion(
+            t[1], [], t.lineno(1), find_column(input_data, t.slice[1])
+        )
+    else:
+        t[0] = AccesoFuncion(
+            t[1], t[3], t.lineno(1), find_column(input_data, t.slice[1])
+        )
+
+
+def p_exp_call_funct(t):
+    '''
+    call_funct_exp      : ID PARA PARC
+                        | ID PARA expresion_list PARC
+    '''
+    if len(t) == 4:
+        t[0] = AccesoFuncion(
+            t[1], [], t.lineno(1), find_column(input_data, t.slice[1])
+        )
+    else:
+        t[0] = AccesoFuncion(
+            t[1], t[3], t.lineno(1), find_column(input_data, t.slice[1])
         )
 
 
@@ -666,6 +778,7 @@ def p_exp_fin(t):
                         | RFALSE
                         | CADENA
                         | ID
+                        | call_funct_exp
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -686,6 +799,8 @@ def p_exp_fin(t):
             t[0] = AccesoVariable(
                 t[1], t.lineno(1), find_column(input_data, t.slice[1])
             )
+        elif t.slice[1].type == 'call_funct_exp':
+            t[0] = t[1]
         elif isinstance(t[1], str):
             value = t[1]
             if value == 'true':
@@ -736,6 +851,7 @@ def p_exp_uplow_case(t):
 # ------------------------------------------------------------------------------
 # TIPO
 # ------------------------------------------------------------------------------
+# Tipo var
 def p_tipo(t):
     '''
     tipo                : RINT64
@@ -759,6 +875,36 @@ def p_tipo(t):
 
         elif t[1] == 'String':
             t[0] = TipoVar.STRING
+
+
+# Tipo function
+def p_tipo_funct(t):
+    '''
+    tipo_funct          : RINT64
+                        | RFLOAT64
+                        | RBOOL
+                        | RCHAR
+                        | RSTRING
+                        | RVOID
+    '''
+    if len(t) == 2:
+        if t[1] == 'Int64':
+            t[0] = TipoVar.INT64
+
+        elif t[1] == 'Float64':
+            t[0] = TipoVar.FLOAT64
+
+        elif t[1] == 'Bool':
+            t[0] = TipoVar.BOOLEAN
+
+        elif t[1] == 'Char':
+            t[0] = TipoVar.CHAR
+
+        elif t[1] == 'String':
+            t[0] = TipoVar.STRING
+
+        elif t[1] == 'void':
+            t[0] = TipoVar.VOID
 
 
 # ==============================================================================

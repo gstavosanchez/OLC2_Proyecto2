@@ -11,6 +11,7 @@ class TipoVar(Enum):
     ARRAY = 6           # Array ([])
     STRUCT = 7          # Struct
     ANY = 8             # Cualquier Valor
+    VOID = 9            # Tipo vacio
 
 
 class TipoArtimetico(Enum):
@@ -54,3 +55,27 @@ def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:
         return 'c', 'int'
     return 'g', None
+
+
+
+def get_tipo_var(type: TipoVar):
+    if type == TipoVar.INT64:
+        return 'Int64'
+    elif type == TipoVar.FLOAT64:
+        return 'Float64'
+    elif type == TipoVar.BOOLEAN:
+        return 'Bool'
+    elif type == TipoVar.STRING:
+        return 'String'
+    elif type == TipoVar.CHAR:
+        return 'Char'
+    elif type == TipoVar.ARRAY:
+        return 'Array'
+    elif type == TipoVar.STRUCT:
+        return 'Struct'
+    elif type == TipoVar.ANY:
+        return 'Any'
+    elif type == TipoVar.VOID:
+        return 'Void'
+    else:
+        return 'Nothing'

@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.SimboloFuncion import SimboloFuncion
 from src.interprete.compilador.simbolos.Simbolo import Simbolo
 from src.interprete.compilador.tipos.Tipo import TipoVar
 
@@ -9,15 +10,26 @@ class Entorno:
         self.variables: dict = {}
         self.functions: dict = {}
         self.structs: dict = {}
-        self.set_size()
         self.break_lb = None
         self.continue_lb = None
+        self.return_lb = None
+        self.actual_function: SimboloFuncion = None
+        self.is_previous()
 
-    def set_size(self):
+    def is_previous(self):
         self.size = self.previous.size if self.previous else 0
+        self.break_lb = self.previous.break_lb if self.previous else None
+        self.continue_lb = self.previous.continue_lb if self.previous else None
+        self.return_lb = self.previous.return_lb if self.previous else None
+        self.actual_function = (
+            self.previous.actual_function if self.previous else None
+        )
 
     def get_size(self):
         return self.size
+
+    def set_size(self, size: int):
+        self.size = size
 
     # --------------------------------------------------------------------------
     # VARIABLES
@@ -75,8 +87,57 @@ class Entorno:
     def set_continue(self, continue_lb: str):
         self.continue_lb = continue_lb
 
+    def set_return(self, return_lb: str):
+        self.return_lb = return_lb
+
     def get_break(self):
         return self.break_lb
 
     def get_continue(self):
         return self.continue_lb
+
+    def get_return(self):
+        return self.return_lb
+
+    # --------------------------------------------------------------------------
+    # FUNCIONES
+    # --------------------------------------------------------------------------
+    def save_function(self, id: str, param_list: list, instruccions, tipo):
+        """
+        Save Function
+
+        Args:
+            id (str): identificador
+            param_list (list): lista de parametros
+            instruccions (Instruccion): instrucines a ejecutar
+
+        """
+        if id in self.functions.keys():
+            return None
+
+        new_function = SimboloFuncion(id, param_list, instruccions, tipo)
+        self.functions[id] = new_function
+        return new_function
+
+    def search_function(self, id: str):
+        entorno = self
+        while entorno is not None:
+            if id in entorno.functions.keys():
+                func: SimboloFuncion = entorno.functions[id]
+                return func
+
+            entorno = entorno.previous
+        return None
+
+    def get_function(self, id: str):
+        return self.functions[id]
+
+    def set_enviroment_funct(
+        self, now_function: SimboloFuncion, return_lb: str
+    ):
+        self.size = 1
+        self.actual_function = now_function
+        self.return_lb = return_lb
+
+    def get_now_function(self):
+        return self.actual_function

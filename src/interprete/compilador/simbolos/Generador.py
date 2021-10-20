@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.Entorno import Entorno
 from src.interprete.error.Exception import ExceptionError
 from src.interprete.compilador.tipos.Tipo import TipoPrint, get_type_print
 
@@ -86,6 +87,23 @@ class Generador:
         self.temp_list.append(temp)
         return temp
 
+    def free_temp(self, temp: str):
+        if temp in self.temp_list:
+            self.temp_list.remove(temp)
+
+    def add_temp(self, tmp: str):
+        if tmp not in self.temp_list:
+            self.temp_list.append(tmp)
+
+    def set_temp_list(self, tmp_list: list):
+        self.temp_list = tmp_list
+
+    def get_temp_list(self):
+        return self.temp_list
+
+    def clear_temp_list(self):
+        self.temp_list = []
+
     # -------------- -> LABEL O ETIQUTA <- --------------
     def new_label(self):
         """Crea un nuevo label o etiqueta
@@ -127,6 +145,52 @@ class Generador:
         if_str = f'if {left} {op} {right} '
         if_str += '{ goto ' + str(label) + '; }\n'
         self.set_code(if_str)
+
+    # -------------- -> SAVE TEMPS  <- --------------
+    def save_temps(self, entorno: Entorno):
+        if len(self.temp_list) > 0:
+            tmp = self.new_temp()
+            # this.freeTemp(temp);
+            self.free_temp(tmp)
+
+            size = 0
+            self.new_commnet('Guardar temporales')
+            self.line_break()
+            self.new_exp(tmp, 'P', entorno.get_size(), '+')
+
+            for value in self.temp_list:
+                size += 1
+                self.set_stack(tmp, value)
+                if size != len(self.temp_list):  # Revisar si -1
+                    self.new_exp(tmp, tmp, '1', '+')
+
+            self.line_break()
+            self.new_commnet('fin de guardar temporales')
+
+            index = entorno.get_size()
+            entorno.set_size(index + len(self.temp_list))
+            return index
+
+    def recover_tmp(self, entorno: Entorno, pos: int):
+        if len(self.temp_list) > 0:
+            tmp = self.new_temp()
+            # freeTemp(temp)
+            self.free_temp(tmp)
+            size = 0
+
+            self.new_commnet('Recuperar temporales')
+            self.line_break()
+
+            for value in self.temp_list:
+                size += 1
+                self.get_stack(value, tmp)
+                if size != len(self.temp_list):
+                    self.new_exp(tmp, tmp, '1', '+')
+
+            self.line_break()
+            self.new_commnet('fin de recuperacion')
+
+            entorno.set_size(pos)
 
     # --------------------------------------------------------------------------
     # CODE MAIN GOLANG
@@ -170,16 +234,24 @@ class Generador:
     # -------------- -> HEADER <- --------------
     def get_header(self):
         text = 'package main\n'
-        text += 'import (\n\t"fmt")\n\n'
+        text += 'import (\n\t"fmt"\n)\n\n'
         # Declaracion de variables
         text += 'var P, H float64;\n'
         text += 'var stack [30101999]float64;\n'
         text += 'var heap [30101999]float64;\n'
-        if len(self.temp_list) > 0:
+        # if len(self.temp_list) > 0:
+        #     text += 'var '
+        #     for i in range(len(self.temp_list)):
+        #         text += self.temp_list[i]
+        #         if i != len(self.temp_list) - 1:
+        #             text += ', '
+        #     text += ' float64;\n\n'
+        # return text
+        if self.index_temp > 0:
             text += 'var '
-            for i in range(len(self.temp_list)):
-                text += self.temp_list[i]
-                if i != len(self.temp_list) - 1:
+            for i in range(self.index_temp):
+                text += f't{i}'
+                if i != self.index_temp - 1:
                     text += ', '
             text += ' float64;\n\n'
         return text
@@ -413,9 +485,9 @@ class Generador:
         self.set_code(f'func {name_func}(){{\n')
 
     def new_end_funct(self):
+        self.set_code('return; \n}\n')
         if not self.in_native:
             self.in_func = False
-        self.set_code('return; \n}\n')
 
     def fPrintln(self):
         if self.is_print:
