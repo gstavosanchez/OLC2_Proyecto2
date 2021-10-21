@@ -21,9 +21,7 @@ class Primitivo(Instruccion):
         self.generador.new_commnet(f'primitivo: {self.value}')
         valor_return = None
         if self.type == TipoVar.INT64 or self.type == TipoVar.FLOAT64:
-            # valor_return = Valor(self.value, self.type, False)
-            # FIXME:
-            valor_return = Valor(self.value, TipoVar.FLOAT64, False)
+            valor_return = Valor(self.value, self.type, False)
         elif self.type == TipoVar.BOOLEAN:
             self.set_labels()
 

@@ -1,7 +1,12 @@
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.Entorno import Entorno
-from src.interprete.compilador.tipos.Tipo import TipoArtimetico, TipoVar
+from src.interprete.compilador.tipos.Tipo import (
+    TipoArtimetico,
+    TipoVar,
+    get_tipo_var,
+    verify_type,
+)
 
 
 class Aritmetica(Instruccion):
@@ -44,12 +49,13 @@ class Aritmetica(Instruccion):
         elif self.type == TipoArtimetico.DIV:
             return self.compare_division(left, right, entorno)
 
-        left_value = left if left else Valor('0', TipoVar.FLOAT64, False)
+        left_value = left if left else Valor('0', TipoVar.INT64, False)
 
         if self.is_valid(left_value, right) is False:
             self.generador.new_error('Tipo invalido', self.line, self.column)
             print('error de tipos')
             return
+        tipo_result = verify_type(left_value.get_type(), right.get_value())
 
         operation = self.get_type(self.type)
         temp = self.generador.new_temp()  # Nuevo Temporal -> t1...tn
@@ -61,7 +67,7 @@ class Aritmetica(Instruccion):
         # self.generador.new_comment_line()
         self.generador.line_break()
 
-        return Valor(temp, TipoVar.FLOAT64, True)
+        return Valor(temp, tipo_result, True)
 
     def get_type(self, operator: TipoArtimetico):
         if operator == TipoArtimetico.SUMA:
@@ -100,7 +106,17 @@ class Aritmetica(Instruccion):
                 'Expresion no es de tipo Int64', self.line, self.column
             )
             return
-
+        tipo = verify_type(left.get_type(), right.get_type())
+        if tipo == TipoVar.ERROR:
+            error_str = (
+                'El tipo "'
+                + get_tipo_var(left.get_type())
+                + '" y el tipo "'
+                + get_tipo_var(right.get_type())
+                + '" no se permite en la potencia'
+            )
+            self.generador.new_error(error_str, self.line, self.column)
+            return
         # if t0 == 2 { goto exit_label }
         self.generador.new_if(tmp_index, right.get_value(), '==', exit_lb)
         # t1 = 5 * t1
@@ -113,7 +129,7 @@ class Aritmetica(Instruccion):
 
         # self.generador.new_commnet('fin expresion aritmetica')
         # self.generador.new_comment_line()
-        return Valor(tmp_result, TipoVar.FLOAT64, True)
+        return Valor(tmp_result, tipo, True)
 
     def set_labels(self):
         pass
@@ -188,6 +204,18 @@ class Aritmetica(Instruccion):
         self.generador.division_validate()
         self.generador.new_comment_line()
         self.generador.new_commnet('Paso de parametros')
+        # Verificar tipos
+        result_type = verify_type(left.get_type(), right.get_type())
+        if result_type == TipoVar.ERROR:
+            error_str = (
+                'El tipo "'
+                + get_tipo_var(left.get_type())
+                + '" y el tipo "'
+                + get_tipo_var(right.get_type())
+                + '" no se permite en la division'
+            )
+            self.generador.new_error(error_str, self.line, self.column)
+            return
         # Temporal para almacenar parametros
         tmp_p = self.generador.new_temp()
         self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')

@@ -10,7 +10,7 @@ class Parametro:
             type (TipoVar): tipo de parametro
         """
         self.id = id
-        self.type = self.update_tipo(type)
+        self.type = type
 
     def set_id(self, id: str):
         self.id = id
@@ -24,7 +24,3 @@ class Parametro:
     def get_type(self):
         return self.type
 
-    def update_tipo(self, type: TipoVar):
-        if type == TipoVar.INT64:
-            type = TipoVar.FLOAT64
-        return type

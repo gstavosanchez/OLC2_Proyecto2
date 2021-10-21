@@ -4,11 +4,19 @@
 #     println(a); 
 # end;
 
+# Esto no funciona
+# function sumar(a::Float64):: Float64
+#     b = 2.0
+#     for i in 1:4
+#         b = b + a * i
+#     end;
+#     return b;
+# end;
 
-function sumar(a::Int64):: Int64
-    # return a * sumar(a - 1);
-    return a * 50;
-end;
+# a = sumar(5.0);
+# println(a);
 
-a = sumar(5);
-println(a);
+
+# 5 + 5 = float
+if "a"  == "a"
+println("ha" ^ 3);

@@ -32,7 +32,7 @@ class For(Instruccion):
             self.generador.new_error('Expresion no es de tipo Int64 or Float64')
             return
 
-        new_var = entorno.save_variable(self.id_var, TipoVar.FLOAT64, False)
+        new_var = entorno.save_variable(self.id_var, TipoVar.INT64, False)
         # -------------- -> ASIGNACION VARIABLE <- --------------
         tmp_pos = new_var.get_position()
 

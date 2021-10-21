@@ -77,7 +77,7 @@ class Asignacion(Instruccion):
         else:
             self.generador.set_stack(tmp_pos, value_compiled.get_value())
 
-        self.generador.new_commnet('Fin asignacion')
+        self.generador.new_commnet(f'Fin asignacion de {self.id}')
         self.generador.new_comment_line()
         self.generador.line_break()
 

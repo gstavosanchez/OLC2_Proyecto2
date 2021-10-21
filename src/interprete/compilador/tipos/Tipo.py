@@ -2,16 +2,17 @@ from enum import Enum
 
 
 class TipoVar(Enum):
-    NOTHING = 0         # Null (None)
-    INT64 = 1           # Int (Integer)
-    FLOAT64 = 2         # Float (Decimal)
-    BOOLEAN = 3         # Boolean (True || False)
-    CHAR = 4            # Char ('d')
-    STRING = 5          # String ("Cadena")
-    ARRAY = 6           # Array ([])
-    STRUCT = 7          # Struct
-    ANY = 8             # Cualquier Valor
-    VOID = 9            # Tipo vacio
+    INT64 = 0           # Int (Integer)
+    FLOAT64 = 1         # Float (Decimal)
+    BOOLEAN = 2         # Boolean (True || False)
+    CHAR = 3            # Char ('d')
+    STRING = 4          # String ("Cadena")
+    ERROR = 5
+    NOTHING = 6         # Null (None)
+    ARRAY = 7           # Array ([])
+    STRUCT = 8          # Struct
+    ANY = 9             # Cualquier Valor
+    VOID = 10           # Tipo vacio
 
 
 class TipoArtimetico(Enum):
@@ -79,3 +80,24 @@ def get_tipo_var(type: TipoVar):
         return 'Void'
     else:
         return 'Nothing'
+
+
+def verify_type(left: TipoVar, right: TipoVar):
+    # INT * x = ?
+    if left == TipoVar.INT64:
+        if right == TipoVar.INT64:
+            return TipoVar.INT64
+        elif right == TipoVar.FLOAT64:
+            return TipoVar.FLOAT64
+        else:
+            return TipoVar.ERROR
+    # Float * x = ?
+    elif left == TipoVar.FLOAT64:
+        if right == TipoVar.INT64:
+            return TipoVar.FLOAT64
+        elif right == TipoVar.FLOAT64:
+            return TipoVar.FLOAT64
+        else:
+            return TipoVar.ERROR
+
+    return TipoVar.ERROR
