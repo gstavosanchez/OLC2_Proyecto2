@@ -13,6 +13,7 @@ class Valor:
         self.aux_type = aux_type
         self.true_label = ''
         self.false_label = ''
+        self.aux_values_list = []
 
     # ==========================================================================
     # VALUE
@@ -49,6 +50,12 @@ class Valor:
 
     def get_aux_type(self):
         return self.aux_type
+
+    def set_aux_values(self, aux_values):
+        self.aux_values_list = aux_values
+
+    def get_aux_values(self):
+        return self.aux_values_list
 
     # ==========================================================================
     # TRUE LABEL

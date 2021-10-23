@@ -1,3 +1,5 @@
+from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
+from src.interprete.compilador.expresiones.Array import Arreglo
 from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
 from src.interprete.compilador.instrucciones.tranferencia.Return import Return
 from src.interprete.compilador.instrucciones.function.Function import Funcion
@@ -72,6 +74,8 @@ tokens = [
     'COMA',
     'IGUAL',
     'DPUNTOS',
+    'CORA',
+    'CORC',
     # ARITMETICOS
     'MAS',
     'MENOS',
@@ -103,6 +107,8 @@ t_COMA = r','
 t_PCOMA = r';'
 t_DPUNTOS = r'\:'
 t_IGUAL = r'='
+t_CORA = r'\['
+t_CORC = r'\]'
 # -------------- -> TOKEN ARITMETICOS <- --------------
 t_MAS = r'\+'
 t_MENOS = r'\-'
@@ -779,6 +785,8 @@ def p_exp_fin(t):
                         | CADENA
                         | ID
                         | call_funct_exp
+                        | array_exp
+                        | acces_array
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -800,6 +808,10 @@ def p_exp_fin(t):
                 t[1], t.lineno(1), find_column(input_data, t.slice[1])
             )
         elif t.slice[1].type == 'call_funct_exp':
+            t[0] = t[1]
+        elif t.slice[1].type == 'array_exp':
+            t[0] = t[1]
+        elif t.slice[1].type == 'acces_array':
             t[0] = t[1]
         elif isinstance(t[1], str):
             value = t[1]
@@ -905,6 +917,42 @@ def p_tipo_funct(t):
 
         elif t[1] == 'void':
             t[0] = TipoVar.VOID
+
+
+# ------------------------------------------------------------------------------
+# ARREGLO
+def p_exp_array(t):
+    '''
+    array_exp           : CORA expresion_list CORC
+    '''
+    t[0] = Arreglo(t[2], t.lineno(1), find_column(input_data, t.slice[1]))
+
+
+# ACCESO ARRELGLO
+def p_exp_access_array(t):
+    'acces_array        : ID list_position'
+    t[0] = AccesoArray(
+        t[1], t[2], t.lineno(1), find_column(input_data, t.slice[1])
+    )
+
+
+def p_list_position(t):
+    '''
+    list_position       : list_position position
+                        | position
+    '''
+    if len(t) == 2:
+        t[0] = [t[1]]
+    else:
+        t[1].append(t[2])
+        t[0] = t[1]
+
+
+def p_position(t):
+    '''
+    position            : CORA expresion CORC
+    '''
+    t[0] = t[2]
 
 
 # ==============================================================================

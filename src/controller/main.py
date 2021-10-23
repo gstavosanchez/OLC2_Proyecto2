@@ -21,7 +21,7 @@ def execute(input_str: str):
     print(str_error)
     print('')
     print('-------------- -> SALIDA <- --------------')
-    print(f'Entrada: {input_str}')
+    # print(f'Entrada: {input_str}')
     print('')
     print(str_output)
     print('------------------------------------------')

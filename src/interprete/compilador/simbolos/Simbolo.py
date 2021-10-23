@@ -25,6 +25,8 @@ class Simbolo:
         self.in_heap: bool = in_heap
         self.position: int = position
         self.value = None
+        self.list_aux_types: list = []
+        self.list_aux_values: list = []
 
     # ==========================================================================
     # SET AND GET: ID
@@ -79,3 +81,15 @@ class Simbolo:
 
     def get_value(self):
         return self.value
+
+    def set_list_aux_types(self, list_types: list):
+        self.list_aux_types = list_types
+
+    def get_list_aux_types(self):
+        return self.list_aux_types
+
+    def set_list_aux_values(self, list_values: list):
+        self.list_aux_values = list_values
+
+    def get_list_aux_values(self):
+        return self.list_aux_values

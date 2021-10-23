@@ -65,7 +65,8 @@ class Entorno:
         entorno = self
         while entorno != None:
             if id in entorno.variables.keys():
-                return entorno.variables[id]
+                var: Simbolo = entorno.variables[id]
+                return var
             entorno = entorno.previous
         return None
 
