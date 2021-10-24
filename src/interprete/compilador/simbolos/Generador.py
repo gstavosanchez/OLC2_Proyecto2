@@ -44,6 +44,8 @@ class Generador:
         self.is_to_lower = False
         # validate division
         self.is_validate_div = False
+        # Index Validated
+        self.is_index_validate = False
 
     def clean(self):
         # contadores
@@ -71,6 +73,8 @@ class Generador:
         self.is_to_lower = False
         # validate division
         self.is_validate_div = False
+        # Index validated
+        self.is_index_validate = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -358,6 +362,19 @@ class Generador:
         self.print_new(TipoPrint.CARACTER, 111)
         self.print_new(TipoPrint.CARACTER, 114)
         self.print_line_break()
+
+    def print_index_error(self):
+        self.print_new(TipoPrint.CARACTER, 66)
+        self.print_new(TipoPrint.CARACTER, 111)
+        self.print_new(TipoPrint.CARACTER, 117)
+        self.print_new(TipoPrint.CARACTER, 110)
+        self.print_new(TipoPrint.CARACTER, 100)
+        self.print_new(TipoPrint.CARACTER, 115)
+        self.print_new(TipoPrint.CARACTER, 69)
+        self.print_new(TipoPrint.CARACTER, 114)
+        self.print_new(TipoPrint.CARACTER, 114)
+        self.print_new(TipoPrint.CARACTER, 111)
+        self.print_new(TipoPrint.CARACTER, 114)
 
     # --------------------------------------------------------------------------
     # ERROR_LIST
@@ -840,5 +857,48 @@ class Generador:
         # EXIT
         self.set_label(end_lb)
         self.set_stack('P', tmp_ret, 'gurdar resultado')
+        self.new_end_funct()
+        self.in_native = False
+
+    def validate_index_array(self):
+        if self.is_index_validate:
+            return
+
+        self.is_index_validate = True
+        self.in_native = True
+        self.new_begin_func('indexValidate')
+
+        # -------------- -> L0...Ln <- --------------
+        end_lb = self.new_label()
+        true_lb = self.new_label()
+        false_lb = self.new_label()
+        # -------------- -> T0...Tn <- --------------
+        tmp_p = self.new_temp()  # T0 = P + 1
+        tmp_len = self.new_temp()  # T1 = 3 -> longiud
+        tmp_i = self.new_temp()  # T2 = 5 -> index
+        tmp_result = self.new_temp()
+        # -------------- -> EXPRESIONE <- --------------
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_len, tmp_p)
+        self.new_exp(tmp_p, tmp_p, '1', '+')
+        self.get_stack(tmp_i, tmp_p)
+
+        # if tmp_i < 1 { goto L2 }
+        self.new_if(tmp_i, '1', '<', true_lb)
+        # if tmp_i > tmp_len { goto L2 }
+        self.new_if(tmp_i, tmp_len, '>', true_lb)
+        # goto false_lb
+        self.new_goto(false_lb)
+        # L2: true_lb
+        self.set_label(true_lb)
+        self.print_index_error()
+        self.new_exp(tmp_result, '1', '', '')  # Esta malo el index
+        self.new_goto(end_lb)
+        # L3: false labe
+        self.set_label(false_lb)
+        self.new_exp(tmp_result, '0', '', '')  # Esta correcto el index
+        # EXIT
+        self.set_label(end_lb)
+        self.set_stack('P', tmp_result)
         self.new_end_funct()
         self.in_native = False

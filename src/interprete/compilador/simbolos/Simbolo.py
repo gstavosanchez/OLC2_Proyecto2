@@ -27,6 +27,7 @@ class Simbolo:
         self.value = None
         self.list_aux_types: list = []
         self.list_aux_values: list = []
+        self.tipo_aux = None
 
     # ==========================================================================
     # SET AND GET: ID
@@ -93,3 +94,9 @@ class Simbolo:
 
     def get_list_aux_values(self):
         return self.list_aux_values
+
+    def set_tipo_aux(self, tipo: TipoVar):
+        self.tipo_aux = tipo
+
+    def get_tipo_aux(self):
+        return self.tipo_aux

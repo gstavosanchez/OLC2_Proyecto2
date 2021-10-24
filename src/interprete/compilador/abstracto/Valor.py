@@ -1,5 +1,8 @@
+from src.interprete.compilador.tipos.Tipo import TipoVar
+
+
 class Valor:
-    def __init__(self, value, type, is_temp: bool, aux_type=None):
+    def __init__(self, value, type, is_temp: bool, aux_type: TipoVar = None):
         """
         Args:
             value (anay): valor
@@ -14,6 +17,7 @@ class Valor:
         self.true_label = ''
         self.false_label = ''
         self.aux_values_list = []
+        self.aux_tyes_list = []
 
     # ==========================================================================
     # VALUE
@@ -51,10 +55,16 @@ class Valor:
     def get_aux_type(self):
         return self.aux_type
 
-    def set_aux_values(self, aux_values):
+    def set_aux_types_list(self, aux_types: list):
+        self.aux_types_list = aux_types
+
+    def get_aux_types_list(self):
+        return self.aux_types_list
+
+    def set_aux_values_list(self, aux_values: list):
         self.aux_values_list = aux_values
 
-    def get_aux_values(self):
+    def get_aux_values_list(self):
         return self.aux_values_list
 
     # ==========================================================================

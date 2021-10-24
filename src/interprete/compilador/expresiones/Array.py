@@ -11,6 +11,11 @@ class Arreglo(Instruccion):
         self.type_list: list = []
         self.values_list = []
         self.entorno: Entorno = None
+        self.tipo_aux = None
+        self.flag: bool = True
+        self.flag_type: bool = True
+        self.line = line
+        self.column = column
 
     def compilar(self, entorno: Entorno):
 
@@ -24,8 +29,19 @@ class Arreglo(Instruccion):
 
         self.generador.begin_comment('FIN ARREGLO')
         self.generador.line_break()
-        ret_value = Valor(tmp_saved, TipoVar.ARRAY, True, self.type_list)
-        ret_value.set_aux_values(self.values_list)
+
+        self.verify_type(self.type_list)
+
+        if not self.flag_type:
+            self.generador.new_error(
+                'La lista no es del mismo tipo', self.line, self.column
+            )
+            return
+
+        ret_value = Valor(tmp_saved, TipoVar.ARRAY, True, self.tipo_aux)
+        ret_value.set_aux_values_list(self.values_list)
+        ret_value.set_aux_types_list(self.type_list)
+
         return ret_value
 
     # Vector{Vector{Vector{Int64}}}
@@ -33,19 +49,34 @@ class Arreglo(Instruccion):
     def saved_array(self, lista: list, tmp_h_prev):
         for inst in lista:
             value: Valor = inst.compilar(self.entorno)
+            if value is None:
+                return
             self.generador.set_heap(tmp_h_prev, value.get_value())
             self.generador.new_exp(tmp_h_prev, tmp_h_prev, '1', '+')
-            # self.type_list.append(value.get_type())
             if value.get_type() == TipoVar.ARRAY:
                 # -------------- -> LISTA DE VALORES <- --------------
-                lista_values = value.get_aux_values()
+                lista_values = value.get_aux_values_list()
                 self.values_list.append(lista_values)
                 # -------------- -> LISTA DE TIPO <- --------------
-                temp_list = value.get_aux_type()
+                temp_list = value.get_aux_types_list()
                 self.type_list.append(temp_list)
             else:
                 self.values_list.append(value)
                 self.type_list.append(value.get_type())
+
+    def verify_type(self, list_types: list):
+        if not self.flag_type:
+            return
+        for type in list_types:
+            if isinstance(type, TipoVar):
+                if self.flag:
+                    self.tipo_aux = type
+                    self.flag = False
+                if self.tipo_aux != type:
+                    self.flag_type = False
+                    return
+            elif isinstance(type, list):
+                self.verify_type(type)
 
     def set_labels(self):
         pass

@@ -109,5 +109,6 @@ class Asignacion(Instruccion):
             new_var.get_type() == TipoVar.ARRAY
             and value.get_type() == TipoVar.ARRAY
         ):
-            new_var.set_list_aux_types(value.get_aux_type())
-            new_var.set_list_aux_values(value.get_aux_values())
+            new_var.set_list_aux_types(value.get_aux_types_list())
+            new_var.set_list_aux_values(value.get_aux_values_list())
+            new_var.set_tipo_aux(value.get_aux_type())
