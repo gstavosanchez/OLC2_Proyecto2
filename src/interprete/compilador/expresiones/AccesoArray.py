@@ -46,25 +46,36 @@ class AccesoArray(Instruccion):
             )
             return
         self.generador.line_break()
-        self.generador.begin_comment(f'acceso array "f{self.id}"')
+        self.generador.begin_comment(f'acceso array "{self.id}"')
 
+        # -------------- -> L0..Ln <- --------------
+        exit_lb = self.generador.new_label()
+        # -------------- -> T0..Tn <- --------------
         tmp_recov = self.generador.new_temp()
         tmp_saved = self.generador.new_temp()
+        tmp_value_h = self.generador.new_temp()
         self.generador.get_stack(tmp_recov, variable.get_position())
+        # -------------- -> VALIDACION <- --------------
+        self.generador.get_heap(tmp_value_h, tmp_recov)
+        index_val: Valor = self.position_list[0].compilar(entorno)
+        validate: Valor = self.validate_index(
+            tmp_value_h, index_val.get_value(), entorno
+        )
+        self.generador.new_if(validate.get_value(), '1', '==', exit_lb)
+        # -------------- -> FIN VALIDACION <- --------------
         self.generador.new_exp(tmp_recov, tmp_recov, '1', '+', 'saltar len')
         type_aux = variable.get_tipo_aux()
         if len(self.position_list) == 1:
             # verficar la longitud del arreglo para el error
             index_val: Valor = self.position_list[0].compilar(entorno)
-
             index = index_val.get_value() - 1
-            type_aux = variable.get_list_aux_types()[index]
+
+            # type_aux = variable.get_list_aux_types()[index]
             self.generador.new_exp(tmp_recov, tmp_recov, index, '+')
             self.generador.get_heap(tmp_saved, tmp_recov)
 
-            self.generador.end_comment(f'fin acceso array')
-            return Valor(tmp_saved, type_aux, True)
-
+            # self.generador.end_comment(f'fin acceso array')
+            # return Valor(tmp_saved, type_aux, True)
         else:
             # a = [1, 2, 3, 4, 5, [10, 25, [50, 20, 200]]]
             # a[6][3][1]
@@ -90,7 +101,9 @@ class AccesoArray(Instruccion):
                 tmp_recov = self.generador.new_temp()  # t2
 
                 self.generador.get_heap(tmp_recov, tmp_aux)
-                # -------------- -> VALIDACOIN <- --------------
+                # -------------- -> VALIDACION <- --------------
+                validate: Valor = self.validate_index(tmp_recov, index, entorno)
+                self.generador.new_if(validate.get_value(), '1', '==', exit_lb)
 
                 # -------------- -> FIN VALIDACION <- --------------
                 self.generador.new_exp(
@@ -98,9 +111,10 @@ class AccesoArray(Instruccion):
                 )
                 self.generador.new_exp(tmp_recov, tmp_recov, index - 1, '+')
 
-            self.generador.get_heap(tmp_saved, tmp_recov)
-            self.generador.end_comment(f'fin acceso array')
-            return Valor(tmp_saved, type_aux, True)
+        self.generador.get_heap(tmp_saved, tmp_recov)
+        self.generador.end_comment(f'fin acceso array')
+        self.generador.set_label(exit_lb)
+        return Valor(tmp_saved, type_aux, True)
 
     def set_labels(self):
         pass
@@ -125,7 +139,7 @@ class AccesoArray(Instruccion):
                 lenght += 1
         return lenght
 
-    def validate_index_arra(self, leght: int, index: int, entorno: Entorno):
+    def validate_index(self, leght: str, index: int, entorno: Entorno):
         self.generador.validate_index_array()
         self.generador.line_break()
         self.generador.new_comment_line()
