@@ -1,6 +1,7 @@
+from src.interprete.compilador.simbolos.SimboloStruct import SimboloStruct
 from src.interprete.compilador.simbolos.SimboloFuncion import SimboloFuncion
 from src.interprete.compilador.simbolos.Simbolo import Simbolo
-from src.interprete.compilador.tipos.Tipo import TipoVar
+from src.interprete.compilador.tipos.Tipo import TipoStruct, TipoVar
 
 
 class Entorno:
@@ -46,9 +47,6 @@ class Entorno:
         Returns:
             Simbolo | None: Nuevo simbolo agregado
         """
-        # FIXME:
-        # Si existe no dejar declarar  o sobreescribirla
-
         if id in self.variables.keys():
             var: Simbolo = self.variables[id]
             var.set_type(type)
@@ -142,3 +140,23 @@ class Entorno:
 
     def get_now_function(self):
         return self.actual_function
+
+    # --------------------------------------------------------------------------
+    # STRUCT
+    # --------------------------------------------------------------------------
+
+    def save_struct(self, id, att_list: list, type_struct=TipoStruct.INMUTABLE):
+        if id in self.structs.keys():
+            return None
+        struct: SimboloStruct = SimboloStruct(id, att_list, type_struct)
+        self.structs[id] = struct
+        return struct
+
+    def get_struct(self, id):
+        env = self
+        while env != None:
+            if id in env.structs.keys():
+                struct: SimboloStruct = env.structs[id]
+                return struct
+            env = env.previous
+        return None

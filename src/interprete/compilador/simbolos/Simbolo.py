@@ -28,6 +28,7 @@ class Simbolo:
         self.list_aux_types: list = []
         self.list_aux_values: list = []
         self.tipo_aux = None
+        self.type_struct = None
 
     # ==========================================================================
     # SET AND GET: ID
@@ -100,3 +101,9 @@ class Simbolo:
 
     def get_tipo_aux(self):
         return self.tipo_aux
+
+    def set_type_struct(self, type_struct):
+        self.type_struct = type_struct
+
+    def get_tyep_struct(self):
+        return self.type_struct

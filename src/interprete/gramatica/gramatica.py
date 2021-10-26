@@ -1,3 +1,5 @@
+from src.interprete.compilador.expresiones.AccesoStruct import AccesoStruct
+from src.interprete.compilador.instrucciones.struct.Struct import Struct
 from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
 from src.interprete.compilador.expresiones.Array import Arreglo
 from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
@@ -27,6 +29,7 @@ from src.interprete.compilador.tipos.Tipo import (
     TipoLogico,
     TipoRelational,
     TipoScoope,
+    TipoStruct,
     TipoUpLowCase,
     TipoVar,
 )
@@ -62,12 +65,15 @@ reservadas = {
     'void': 'RVOID',
     'in': 'RIN',
     'end': 'REND',
+    'struct': 'RSTRUCT',
+    'mutable': 'RMUTABLE',
 }
 # ==============================================================================
 # TOKENS
 # ==============================================================================
 tokens = [
     # SIMBOLOS
+    'PUNTO',
     'PCOMA',
     'PARA',
     'PARC',
@@ -101,6 +107,7 @@ tokens = [
     'ID',
 ] + list(reservadas.values())
 # -------------- -> TOKEN SIMBOLOS <- --------------
+t_PUNTO = r'\.'
 t_PARA = r'\('
 t_PARC = r'\)'
 t_COMA = r','
@@ -281,6 +288,8 @@ def p_inst(t):
 
                         | function_inst fin_inst
                         | call_funct_inst fin_inst
+
+                        | struct_inst fin_inst
 
                         | break_inst fin_inst
                         | continue_inst fin_inst
@@ -545,7 +554,7 @@ def p_param(t):
     t[0] = Parametro(t[1], t[4])
 
 
-def p_int_call_funct(t):
+def p_inst_call_funct(t):
     '''
     call_funct_inst     : ID PARA PARC
                         | ID PARA expresion_list PARC
@@ -573,6 +582,55 @@ def p_exp_call_funct(t):
         t[0] = AccesoFuncion(
             t[1], t[3], t.lineno(1), find_column(input_data, t.slice[1])
         )
+
+
+# ------------------------------------------------------------------------------
+# STRUCT
+def p_inst_struct(t):
+    '''
+    struct_inst         : RSTRUCT ID att_list REND
+                        | RMUTABLE RSTRUCT ID att_list REND
+    '''
+    if len(t) == 5:
+        t[0] = Struct(
+            t[2], t[3], t.lineno(1), find_column(input_data, t.slice[1])
+        )
+    else:
+        t[0] = Struct(
+            t[3],
+            t[4],
+            t.lineno(1),
+            find_column(input_data, t.slice[1]),
+            TipoStruct.MUTABLE,
+        )
+
+
+# Lista de atributos
+def p_att_list(t):
+    '''
+    att_list            : att_list att_item
+                        | att_item
+    '''
+    if len(t) == 2:
+        t[0] = [t[1]]
+    else:
+        t[1].append(t[2])
+        t[0] = t[1]
+
+
+def p_att_item(t):
+    '''
+    att_item            : ID DPUNTOS DPUNTOS tipo PCOMA
+    '''
+    t[0] = Parametro(t[1], t[4])
+
+
+# Acceso Struct
+def p_exp_access_struct(t):
+    'access_struct      : ID PUNTO ID'
+    t[0] = AccesoStruct(
+        t[1], t[3], t.lineno(1), find_column(input_data, t.slice[1])
+    )
 
 
 # ==============================================================================
@@ -787,6 +845,7 @@ def p_exp_fin(t):
                         | call_funct_exp
                         | array_exp
                         | acces_array
+                        | access_struct
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -812,6 +871,8 @@ def p_exp_fin(t):
         elif t.slice[1].type == 'array_exp':
             t[0] = t[1]
         elif t.slice[1].type == 'acces_array':
+            t[0] = t[1]
+        elif t.slice[1].type == 'access_struct':
             t[0] = t[1]
         elif isinstance(t[1], str):
             value = t[1]

@@ -54,7 +54,14 @@ class AccesoArray(Instruccion):
         tmp_recov = self.generador.new_temp()
         tmp_saved = self.generador.new_temp()
         tmp_value_h = self.generador.new_temp()
-        self.generador.get_stack(tmp_recov, variable.get_position())
+        # FIXME:
+        # REVISAR
+        tmp_pos = variable.get_position()
+        if not variable.get_is_global():
+            tmp_pos = self.generador.new_temp()
+            self.generador.new_exp(tmp_pos, 'P', variable.get_position(), '+')
+
+        self.generador.get_stack(tmp_recov, tmp_pos)
         # -------------- -> VALIDACION <- --------------
         self.generador.get_heap(tmp_value_h, tmp_recov)
         index_val: Valor = self.position_list[0].compilar(entorno)
@@ -111,7 +118,7 @@ class AccesoArray(Instruccion):
                 )
                 self.generador.new_exp(tmp_recov, tmp_recov, index - 1, '+')
 
-        self.generador.get_heap(tmp_saved, tmp_recov)
+            self.generador.get_heap(tmp_saved, tmp_recov)
         self.generador.end_comment(f'fin acceso array')
         self.generador.set_label(exit_lb)
         return Valor(tmp_saved, type_aux, True)

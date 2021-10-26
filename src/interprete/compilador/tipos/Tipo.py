@@ -51,6 +51,10 @@ class TipoScoope(Enum):
     LOCAL = 2           # local
     UNDEFINED = 3       # NO definido
 
+class TipoStruct(Enum):
+    MUTABLE = 1         # Permite cambios
+    INMUTABLE = 2       # No permite cambios
+
     
 def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:

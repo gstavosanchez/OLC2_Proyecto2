@@ -55,7 +55,9 @@ class Asignacion(Instruccion):
             new_var.set_type(type_aux)
             new_var.set_in_heap(self.in_heap(value_compiled.get_type()))
 
+        new_var.set_type_struct(self.value.struct_type)
         self.save_arrays(new_var, value_compiled)
+
         # if new_var is None:
         #     self.generador.new_error(
         #         f'"{self.id}" no puede ser declarada en este scoop',
@@ -99,7 +101,7 @@ class Asignacion(Instruccion):
         if (
             tipo == TipoVar.STRUCT
             or tipo == TipoVar.ARRAY
-            or tipo == TipoVar.ARRAY
+            or tipo == TipoVar.STRING
         ):
             return True
         return False

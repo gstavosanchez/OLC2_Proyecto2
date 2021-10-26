@@ -25,7 +25,14 @@
 
 # a = [100, 200, 300]
 # a = ["h", "o", "l", "a", ["ja", "ja"]]
-a = [1, 2, 3, 4, 5, [10, 25, [50, 25, 200]]];
-println(a[6][100])
-println("gus")
+# a = [1, 2, 3, 4, 5, [10, 25, [50, 25, 200]]];
+# println(a[6][100])
+# println("gus")
 
+struct Persona
+    edad::Int64;
+    nombre::String;
+end;
+
+a = Persona(23, "Gus");
+println(a.edad)

@@ -45,7 +45,6 @@ class Arreglo(Instruccion):
         return ret_value
 
     # Vector{Vector{Vector{Int64}}}
-    # a = [1, 2, [10, 25, 35]]
     def saved_array(self, lista: list, tmp_h_prev):
         for inst in lista:
             value: Valor = inst.compilar(self.entorno)

@@ -10,6 +10,7 @@ class Instruccion(ABC):
         self.column = column
         self.true_label = ''
         self.false_label = ''
+        self.struct_type = None
         self.generador = Generador.get_instance()
 
     @abstractmethod

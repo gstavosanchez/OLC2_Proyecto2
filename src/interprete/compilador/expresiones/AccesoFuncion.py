@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.SimboloStruct import SimboloStruct
 from src.interprete.compilador.tipos.Tipo import TipoVar, get_tipo_var
 from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.SimboloFuncion import SimboloFuncion
@@ -14,99 +15,164 @@ class AccesoFuncion(Instruccion):
         self.column = column
 
     def compilar(self, entorno: Entorno):
-        self.generador.line_break()
-        self.generador.begin_comment(f'Llamado a funcion: {self.id}')
         funct_simbol: SimboloFuncion = entorno.search_function(self.id)
-        if funct_simbol is None:
-            self.generador.new_error(
-                f'No existe la funcion "{self.id}"', self.line, self.column
-            )
-            return
-        params_values: list = []
-        size = self.generador.save_temps(entorno)
+        if funct_simbol is not None:
+            self.generador.line_break()
+            self.generador.begin_comment(f'Llamado a funcion: {self.id}')
+            params_values: list = []
+            size = self.generador.save_temps(entorno)
 
-        paramas_lenght_funct = funct_simbol.get_size_params()
-        send_param_lenght = len(self.param_exp)
+            paramas_lenght_funct = funct_simbol.get_size_params()
+            send_param_lenght = len(self.param_exp)
 
-        if paramas_lenght_funct != send_param_lenght:
-            self.generador.new_error(
-                f'Se esperaba {paramas_lenght_funct} argumentos, enviados {send_param_lenght}',
-                self.line,
-                self.column,
-            )
-            return
-
-        i = 0
-        for exp in self.param_exp:
-            param_send: Valor = exp.compilar(entorno)
-            param_registered = funct_simbol.get_value_param(i)
-            if param_send.get_type() != param_registered.get_type():
-                erro_str = (
-                    'Argumento de tipo '
-                    + get_tipo_var(param_send.get_type())
-                    + ' no se puede asiganar al parametro de tipo '
-                    + get_tipo_var(param_registered.get_type())
+            if paramas_lenght_funct != send_param_lenght:
+                self.generador.new_error(
+                    f'Se esperaba {paramas_lenght_funct} argumentos, enviados {send_param_lenght}',
+                    self.line,
+                    self.column,
                 )
-                self.generador.new_error(erro_str, self.line, self.column)
                 return
 
-            if param_send.get_type() == TipoVar.BOOLEAN:
-                tmp = self.generador.new_temp()
-                tmp_lb = self.generador.new_label()
-                self.generador.free_temp(tmp)
+            i = 0
+            for exp in self.param_exp:
+                param_send: Valor = exp.compilar(entorno)
+                param_registered = funct_simbol.get_value_param(i)
+                if param_send.get_type() != param_registered.get_type():
+                    erro_str = (
+                        'Argumento de tipo '
+                        + get_tipo_var(param_send.get_type())
+                        + ' no se puede asiganar al parametro de tipo '
+                        + get_tipo_var(param_registered.get_type())
+                    )
+                    self.generador.new_error(erro_str, self.line, self.column)
+                    return
 
-                self.generador.set_label(param_send.get_true_label())
-                self.generador.new_exp(
-                    tmp, 'P', entorno.get_size() + i + 1, '+'
-                )
-                self.generador.set_stack(tmp, '1')
-                self.generador.new_goto(tmp_lb)
+                if param_send.get_type() == TipoVar.BOOLEAN:
+                    tmp = self.generador.new_temp()
+                    tmp_lb = self.generador.new_label()
+                    self.generador.free_temp(tmp)
 
-                self.generador.set_label(param_send.get_false_label())
-                self.generador.new_exp(
-                    tmp, 'P', entorno.get_size() + i + 1, '+'
-                )
-                self.generador.set_stack(tmp, '0')
-                self.generador.set_label(tmp_lb)
+                    self.generador.set_label(param_send.get_true_label())
+                    self.generador.new_exp(
+                        tmp, 'P', entorno.get_size() + i + 1, '+'
+                    )
+                    self.generador.set_stack(tmp, '1')
+                    self.generador.new_goto(tmp_lb)
 
-            params_values.append(param_send)
-            i += 1
+                    self.generador.set_label(param_send.get_false_label())
+                    self.generador.new_exp(
+                        tmp, 'P', entorno.get_size() + i + 1, '+'
+                    )
+                    self.generador.set_stack(tmp, '0')
+                    self.generador.set_label(tmp_lb)
 
-        tmp = self.generador.new_temp()
-        self.generador.free_temp(tmp)
-        if len(params_values) > 0:
-            x = 0
-            self.generador.new_exp(tmp, 'P', entorno.get_size() + 1, '+')
-            for param in params_values:
-                if param.get_type() != TipoVar.BOOLEAN:
-                    self.generador.set_stack(tmp, param.get_value())
+                params_values.append(param_send)
+                i += 1
 
-                if x != len(params_values) - 1:
-                    self.generador.new_exp(tmp, tmp, '1', '+')
+            tmp = self.generador.new_temp()
+            self.generador.free_temp(tmp)
+            if len(params_values) > 0:
+                x = 0
+                self.generador.new_exp(tmp, 'P', entorno.get_size() + 1, '+')
+                for param in params_values:
+                    if param.get_type() != TipoVar.BOOLEAN:
+                        self.generador.set_stack(tmp, param.get_value())
 
-                x += 1
+                    if x != len(params_values) - 1:
+                        self.generador.new_exp(tmp, tmp, '1', '+')
 
-        self.generador.new_entorno(entorno.get_size())
-        self.generador.call_function(funct_simbol.get_id())
-        self.generador.get_stack(tmp, 'P')
-        self.generador.ret_entorno(entorno.get_size())
-        self.generador.recover_tmp(entorno, size)
-        self.generador.add_temp(tmp)
+                    x += 1
 
-        if funct_simbol.get_type() != TipoVar.BOOLEAN:
+            self.generador.new_entorno(entorno.get_size())
+            self.generador.call_function(funct_simbol.get_id())
+            self.generador.get_stack(tmp, 'P')
+            self.generador.ret_entorno(entorno.get_size())
+            self.generador.recover_tmp(entorno, size)
+            self.generador.add_temp(tmp)
+
+            if funct_simbol.get_type() != TipoVar.BOOLEAN:
+                self.generador.end_comment('fin llamado a funcion')
+                return Valor(tmp, funct_simbol.get_type(), True)
+
+            aux_return = Valor("", funct_simbol.get_type(), False)
+            self.set_labels()
+
+            self.generador.new_if(tmp, '1', '==', self.true_label)
+            self.generador.new_goto(self.false_label)
+
+            aux_return.set_true_label(self.true_label)
+            aux_return.set_false_label(self.false_label)
             self.generador.end_comment('fin llamado a funcion')
-            return Valor(tmp, funct_simbol.get_type(), True)
+            return aux_return
+        else:
+            # ------------------------------------------------------------------
+            # STRUCT
+            # ------------------------------------------------------------------
+            self.generador.line_break()
+            self.generador.begin_comment(f'Declarar Struct {self.id}()')
+            struct: SimboloStruct = entorno.get_struct(self.id)
+            if struct is None:
+                error_str = f'No existe "{self.id}"'
+                self.generador.new_error(error_str, self.line, self.column)
+                return
+            if len(self.param_exp) != struct.get_size_att_list():
+                error_str = (
+                    'Se esperaban '
+                    + struct.get_size_att_list()
+                    + ' y se recibieron '
+                    + len(self.param_exp)
+                )
+                self.generador.new_error(error_str, self.line, self.column)
+                return
 
-        aux_return = Valor("", funct_simbol.get_type(), False)
-        self.set_labels()
+            self.struct_type = self.id
 
-        self.generador.new_if(tmp, '1', '==', self.true_label)
-        self.generador.new_goto(self.false_label)
+            tmp_saved = (
+                self.generador.new_temp()
+            )  # Apuntador se guarda el struct
+            tmp_i_h = self.generador.new_temp()  # contador del heap
 
-        aux_return.set_true_label(self.true_label)
-        aux_return.set_false_label(self.false_label)
-        self.generador.end_comment('fin llamado a funcion')
-        return aux_return
+            self.generador.new_exp(tmp_saved, 'H', '', '')
+            self.generador.new_exp(tmp_i_h, tmp_saved, '', '')
+
+            # Almacenar el espacio del strcut
+            self.generador.new_exp(
+                'H',
+                'H',
+                struct.get_size_att_list(),
+                '+',
+                f'Almacenar espacio en heap del struct {self.id}',
+            )
+
+            i = 0
+            for att in self.param_exp:
+                att_send: Valor = att.compilar(entorno)
+                att_registered = struct.get_attributo(i)
+                if att_send.get_type() != att_registered.get_type():
+                    erro_str = (
+                        'Atributo de tipo '
+                        + get_tipo_var(att_send.get_type())
+                        + ' no se puede asiganar al atributo de tipo '
+                        + get_tipo_var(att_registered.get_type())
+                    )
+                    self.generador.new_error(erro_str, self.line, self.column)
+                    return
+
+                if att_send.get_type() == TipoVar.BOOLEAN:
+                    ret_lb = self.generador.new_label()
+                    self.generador.set_label(att_send.get_true_label())
+                    self.generador.set_heap(tmp_i_h, '1')
+                    self.generador.new_goto(ret_lb)
+                    self.generador.set_label(att_send.get_false_label())
+                    self.generador.set_heap(tmp_i_h, '0')
+                    self.generador.set_label(ret_lb)
+                else:
+                    self.generador.set_heap(tmp_i_h, att_send.get_value())
+
+                self.generador.new_exp(tmp_i_h, tmp_i_h, '1', '+')
+                i += 1
+
+            return Valor(tmp_saved, TipoVar.STRUCT, True)
 
     def set_labels(self):
         if self.true_label == '':
