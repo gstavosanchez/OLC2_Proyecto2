@@ -8,10 +8,10 @@ from src.interprete.compilador.abstracto.Instruccion import Instruccion
 
 
 class AccesoStruct(Instruccion):
-    def __init__(self, id, att_name, line, column):
+    def __init__(self, id, att_name_list, line, column):
         super().__init__(line, column)
         self.id = id
-        self.att_name = att_name
+        self.att_name_list = att_name_list
         self.line = line
         self.column = column
 
@@ -48,25 +48,53 @@ class AccesoStruct(Instruccion):
 
         self.generador.get_stack(tmp_i, tmp_pos)
 
-        for att in struct.get_att_list():
-            att: Parametro
-            if att.get_id() == self.att_name:
-                att_type = att.get_type()
-                break
-            i += 1
+        for x in range(len(self.att_name_list)):
+            att_search = self.att_name_list[x]
+            att_type, i = self.search_att(att_search, struct)
+            tmp_aux = tmp_i
+            if att_type is None:
+                self.generador.new_error(
+                    f'El atributo "{att_search}" no es existe',
+                    self.line,
+                    self.column,
+                )
+                return
+            if att_type.get_type() == TipoVar.STRUCT:
+                struct2: SimboloStruct = entorno.get_struct(
+                    att_type.get_type_aux()
+                )
+                if struct2 is None:
+                    error_str = (
+                        'No existe el Struct "' + att_type.get_type_aux()
+                    )
+                    self.generador.new_error(
+                        error_str,
+                        self.line,
+                        self.column,
+                    )
+                    return
+                struct = struct2
 
-        if att_type is None:
-            self.generador.new_error(
-                f'El atributo "{self.att_name}" no es existe',
-                self.line,
-                self.column,
-            )
-            return
+            if x == 0:
+                self.generador.new_exp(tmp_aux, tmp_aux, i, '+')
+                continue
 
-        self.generador.new_exp(tmp_i, tmp_i, i, '+')
+            tmp_i = self.generador.new_temp()
+            self.generador.get_heap(tmp_i, tmp_aux)
+            self.generador.new_exp(tmp_i, tmp_i, i, '+')
+
         self.generador.get_heap(tmp_saved, tmp_i)
-
-        return Valor(tmp_saved, att_type, True)
+        return Valor(tmp_saved, att_type.get_type(), True)
 
     def set_labels(self):
         pass
+
+    def search_att(self, att_name, struct: SimboloStruct):
+        i = 0
+        for att in struct.get_att_list():
+            att: Parametro
+            if att.get_id() == att_name:
+                att_type = att
+                return att_type, i
+            i += 1
+        return None, None

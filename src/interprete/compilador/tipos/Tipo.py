@@ -83,7 +83,7 @@ def get_tipo_var(type: TipoVar):
     elif type == TipoVar.VOID:
         return 'Void'
     else:
-        return 'Nothing'
+        return type
 
 
 def verify_type(left: TipoVar, right: TipoVar):

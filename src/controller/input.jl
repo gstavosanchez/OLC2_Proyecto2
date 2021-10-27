@@ -33,6 +33,30 @@ struct Persona
     edad::Int64;
     nombre::String;
 end;
-
+struct Alumno
+    carrera::String;
+    people:: Persona;
+end;
 a = Persona(23, "Gus");
 println(a.edad)
+
+estudiante = Alumno("sistemas", a)
+
+println(estudiante.carrera)
+println(estudiante.people.nombre)
+
+
+# acceso a persona.edad
+# t3 = stack[0];
+# t3 = t3 + 0;
+# t4 = heap[t3];
+
+# acceso a alumuno.people.edad
+# t3 = stack[0];
+# t3 = t3 + 1;
+
+# t4 = heap[t3]
+# t5 = t5 + 0
+
+# t6 = heap[t5]
+

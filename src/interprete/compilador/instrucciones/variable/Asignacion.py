@@ -1,6 +1,10 @@
 from src.interprete.compilador.simbolos.Simbolo import Simbolo
 from src.interprete.compilador.abstracto.Valor import Valor
-from src.interprete.compilador.tipos.Tipo import TipoScoope, TipoVar
+from src.interprete.compilador.tipos.Tipo import (
+    TipoScoope,
+    TipoVar,
+    get_tipo_var,
+)
 from src.interprete.compilador.simbolos.Entorno import Entorno
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 
@@ -24,16 +28,41 @@ class Asignacion(Instruccion):
         if value_compiled is None:
             return
 
+        type_aux = None
+        type_aux_struct = None
         # Validar tipo
         if self.type:
-            if self.type != value_compiled.get_type():
-                self.generador.new_error(
-                    f'"{self.id}" no se le puede asignar ese tipo',
-                    self.line,
-                    self.column,
-                )
-                return
-        type_aux = self.type if self.type else value_compiled.get_type()
+            if isinstance(self.type, TipoVar):
+                if self.type != value_compiled.get_type():
+                    error_str = (
+                        self.id
+                        + ' esperaba tipo '
+                        + get_tipo_var(self.type)
+                        + ' se envio tipo '
+                        + get_tipo_var(value_compiled.get_type())
+                    )
+                    self.generador.new_error(
+                        error_str,
+                        self.line,
+                        self.column,
+                    )
+                    return
+                type_aux = self.type
+            else:
+                struct = entorno.get_struct(self.type)
+                if struct is None:
+                    self.generador.new_error(
+                        f'"{self.id}" no se le puede asignar tipo "{self.type}" no existe',
+                        self.line,
+                        self.column,
+                    )
+                    return
+                type_aux_struct = struct.get_id()
+                type_aux = TipoVar.STRUCT
+
+        else:
+            type_aux = value_compiled.get_type()
+        # type_aux = self.type if self.type else value_compiled.get_type()
 
         new_var = entorno.get_variable(self.id)
 
@@ -55,7 +84,14 @@ class Asignacion(Instruccion):
             new_var.set_type(type_aux)
             new_var.set_in_heap(self.in_heap(value_compiled.get_type()))
 
-        new_var.set_type_struct(self.value.struct_type)
+        if type_aux == TipoVar.STRUCT:
+            aux = (
+                self.value.struct_type
+                if self.value.struct_type
+                else type_aux_struct
+            )
+            new_var.set_type_struct(aux)
+
         self.save_arrays(new_var, value_compiled)
 
         # if new_var is None:

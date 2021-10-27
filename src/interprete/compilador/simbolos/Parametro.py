@@ -11,6 +11,8 @@ class Parametro:
         """
         self.id = id
         self.type = type
+        self.tyep_aux = None
+        self.verify_type(type)
 
     def set_id(self, id: str):
         self.id = id
@@ -24,3 +26,12 @@ class Parametro:
     def get_type(self):
         return self.type
 
+    def verify_type(self, type):
+        if isinstance(type, TipoVar):
+            self.type = type
+        else:
+            self.tyep_aux = type
+            self.type = TipoVar.STRUCT
+
+    def get_type_aux(self):
+        return self.tyep_aux

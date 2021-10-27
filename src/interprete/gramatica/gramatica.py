@@ -627,10 +627,22 @@ def p_att_item(t):
 
 # Acceso Struct
 def p_exp_access_struct(t):
-    'access_struct      : ID PUNTO ID'
+    'access_struct      : ID PUNTO list_att_id'
     t[0] = AccesoStruct(
         t[1], t[3], t.lineno(1), find_column(input_data, t.slice[1])
     )
+
+
+def p_list_att_id(t):
+    '''
+    list_att_id         : list_att_id PUNTO ID
+                        | ID
+    '''
+    if len(t) == 2:
+        t[0] = [t[1]]
+    else:
+        t[1].append(t[3])
+        t[0] = t[1]
 
 
 # ==============================================================================
@@ -932,6 +944,7 @@ def p_tipo(t):
                         | RBOOL
                         | RCHAR
                         | RSTRING
+                        | ID
     '''
     if len(t) == 2:
         if t[1] == 'Int64':
@@ -948,6 +961,9 @@ def p_tipo(t):
 
         elif t[1] == 'String':
             t[0] = TipoVar.STRING
+
+        elif t.slice[1].type == 'ID':
+            t[0] = t[1]
 
 
 # Tipo function
