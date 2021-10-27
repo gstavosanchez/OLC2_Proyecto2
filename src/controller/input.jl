@@ -29,11 +29,11 @@
 # println(a[6][100])
 # println("gus")
 
-struct Persona
+mutable struct Persona
     edad::Int64;
     nombre::String;
 end;
-struct Alumno
+mutable struct Alumno
     carrera::String;
     people:: Persona;
 end;
@@ -45,6 +45,8 @@ estudiante = Alumno("sistemas", a)
 println(estudiante.carrera)
 println(estudiante.people.nombre)
 
+estudiante.people.nombre = 5
+println(a.nombre)
 
 # acceso a persona.edad
 # t3 = stack[0];

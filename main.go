@@ -7,7 +7,7 @@ import (
 var P, H float64
 var stack [30101999]float64
 var heap [30101999]float64
-var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20 float64
+var t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16, t17, t18, t19, t20, t21, t22, t23, t24, t25, t26, t27 float64
 
 // -----------------------------------------------------------
 // FUNCIONES NATIVAS
@@ -157,6 +157,51 @@ func main() {
 
 	// GUARDAR RETURN DE LA FUNCION
 	t20 = stack[int(P)]
+	// REGRESO DE ENTORNO
+	P = P - 2
+
+	fmt.Printf("%c", int(10))
+	// FIN PRINT
+	// -----------------------------------------------------------
+	// PRIMITIVO: ELMER
+
+	t21 = H
+	heap[int(H)] = 69 // E
+	H = H + 1
+	heap[int(H)] = 108 // l
+	H = H + 1
+	heap[int(H)] = 109 // m
+	H = H + 1
+	heap[int(H)] = 101 // e
+	H = H + 1
+	heap[int(H)] = 114 // r
+	H = H + 1
+	heap[int(H)] = -1 // FIN CADENA
+	H = H + 1
+
+	t22 = stack[int(1)]
+	t22 = t22 + 1
+	t23 = heap[int(t22)]
+	t23 = t23 + 1
+	heap[int(t23)] = t21
+
+	// -----------------------------------------------------------
+	// INICIO PRINT
+	t24 = stack[int(0)]
+	t24 = t24 + 1
+	t25 = heap[int(t24)]
+	// -----------------------------------------------------------
+	// GUARDAR VARIABLE EN STACK
+	t26 = P + 2
+	t26 = t26 + 1
+	stack[int(t26)] = t25
+	// -----------------------------------------------------------
+
+	P = P + 2
+	printStr()
+
+	// GUARDAR RETURN DE LA FUNCION
+	t27 = stack[int(P)]
 	// REGRESO DE ENTORNO
 	P = P - 2
 

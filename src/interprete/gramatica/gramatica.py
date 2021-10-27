@@ -1,3 +1,6 @@
+from src.interprete.compilador.instrucciones.struct.AsignarAccesoStruct import (
+    AsignarAccesoStruct,
+)
 from src.interprete.compilador.expresiones.AccesoStruct import AccesoStruct
 from src.interprete.compilador.instrucciones.struct.Struct import Struct
 from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
@@ -290,6 +293,7 @@ def p_inst(t):
                         | call_funct_inst fin_inst
 
                         | struct_inst fin_inst
+                        | assign_atr_struct fin_inst
 
                         | break_inst fin_inst
                         | continue_inst fin_inst
@@ -643,6 +647,14 @@ def p_list_att_id(t):
     else:
         t[1].append(t[3])
         t[0] = t[1]
+
+
+# Asignar Acceso a Struct
+def p_int_assing_acces_struc(t):
+    'assign_atr_struct  : ID PUNTO list_att_id IGUAL expresion'
+    t[0] = AsignarAccesoStruct(
+        t[1], t[3], t[5], t.lineno(2), find_column(input_data, t.slice[2])
+    )
 
 
 # ==============================================================================

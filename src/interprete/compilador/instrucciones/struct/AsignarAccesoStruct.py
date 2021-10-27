@@ -1,17 +1,22 @@
-from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.Parametro import Parametro
-from src.interprete.compilador.simbolos.SimboloStruct import SimboloStruct
-from src.interprete.compilador.tipos.Tipo import TipoVar
+from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.simbolos.Simbolo import Simbolo
+from src.interprete.compilador.simbolos.SimboloStruct import SimboloStruct
+from src.interprete.compilador.tipos.Tipo import (
+    TipoStruct,
+    TipoVar,
+    get_tipo_var,
+)
 from src.interprete.compilador.simbolos.Entorno import Entorno
 from src.interprete.compilador.abstracto.Instruccion import Instruccion
 
 
-class AccesoStruct(Instruccion):
-    def __init__(self, id, att_name_list, line, column):
+class AsignarAccesoStruct(Instruccion):
+    def __init__(self, id, att_list, exppresion, line, column):
         super().__init__(line, column)
         self.id = id
-        self.att_name_list = att_name_list
+        self.att_list: list = att_list
+        self.expresion: Instruccion = exppresion
         self.line = line
         self.column = column
 
@@ -22,7 +27,6 @@ class AccesoStruct(Instruccion):
                 f'No existe la variable "{self.id}"', self.line, self.column
             )
             return
-
         if (
             variable.get_type() != TipoVar.STRUCT
             or variable.get_tyep_struct() is None
@@ -34,9 +38,10 @@ class AccesoStruct(Instruccion):
             )
             return
 
+        val_compiled: Valor = self.expresion.compilar(entorno)
+
         # -------------- -> T0...Tn <- --------------
         tmp_i = self.generador.new_temp()
-        tmp_saved = self.generador.new_temp()
         tmp_pos = variable.get_position()
         # -------------- -> Aux <- --------------
         i = 0
@@ -48,8 +53,10 @@ class AccesoStruct(Instruccion):
 
         self.generador.get_stack(tmp_i, tmp_pos)
 
-        for x in range(len(self.att_name_list)):
-            att_search = self.att_name_list[x]
+        for x in range(len(self.att_list)):
+            if not self.is_mutable(struct):
+                return
+            att_search = self.att_list[x]
             att_type, i = self.search_att(att_search, struct)
             tmp_aux = tmp_i
             if att_type is None:
@@ -78,17 +85,21 @@ class AccesoStruct(Instruccion):
             if x == 0:
                 self.generador.new_exp(tmp_aux, tmp_aux, i, '+')
                 continue
-
             tmp_i = self.generador.new_temp()
             self.generador.get_heap(tmp_i, tmp_aux)
             self.generador.new_exp(tmp_i, tmp_i, i, '+')
 
-        self.generador.get_heap(tmp_saved, tmp_i)
-
-        val_ret = Valor(tmp_saved, att_type.get_type(), True)
-        if att_type.get_type() == TipoVar.STRUCT:
-            val_ret.set_aux_type(att_type.get_type_aux())
-        return val_ret
+        if val_compiled.get_type() == att_type.get_type():
+            self.generador.set_heap(tmp_i, val_compiled.get_value())
+        else:
+            erro_str = (
+                'Valor de tipo '
+                + get_tipo_var(val_compiled.get_type())
+                + ' no se puede asiganar al atributo de tipo '
+                + get_tipo_var(att_type.get_type())
+            )
+            self.generador.new_error(erro_str, self.line, self.column)
+            return
 
     def set_labels(self):
         pass
@@ -102,3 +113,10 @@ class AccesoStruct(Instruccion):
                 return att_type, i
             i += 1
         return None, None
+
+    def is_mutable(self, struct: SimboloStruct):
+        if struct.get_type_strcut() == TipoStruct.INMUTABLE:
+            erro_str = 'Struct "' + struct.get_id() + '" es de tipo Inmutable'
+            self.generador.new_error(erro_str, self.line, self.column)
+            return False
+        return True
