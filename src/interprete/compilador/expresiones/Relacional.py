@@ -58,7 +58,24 @@ class Relacional(Instruccion):
                 left.get_type() == TipoVar.STRING
                 and right.get_type() == TipoVar.STRING
             ):
-                pass
+                if self.type != TipoRelational.COMPARACION:
+                    self.generador.new_error(
+                        'Solo se puedo comparar str', self.line, self.column
+                    )
+                    return
+
+                self.set_labels()
+                result: Valor = self.validate_str(left, right, entorno)
+                # -------------- -> IF <- --------------
+                # if left op right { goto true_label; }
+                # goto false_label;
+                self.generador.new_if(
+                    result.get_value(), 1, '==', self.true_label
+                )
+                self.generador.new_goto(self.false_label)  # goto false_lb
+                value.set_true_label(self.true_label)
+                value.set_false_label(self.false_label)
+
         else:
             # ------------------------------------------------------------------
             # BOOLEAN
@@ -148,3 +165,37 @@ class Relacional(Instruccion):
             self.true_label = self.generador.new_label()
         if self.false_label == '':
             self.false_label = self.generador.new_label()
+
+    def validate_str(self, left: Valor, right: Valor, entorno: Entorno):
+        self.generador.verify_equals_str()
+        self.generador.line_break()
+        self.generador.new_comment_line()
+        # self.generador.new_commnet('Paso de parametros')
+        # Temporal para almacenar parametros
+        tmp_p = self.generador.new_temp()
+        self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')
+        # Guardar primer parametro
+        # self.generador.new_commnet('1er Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, left.get_value())
+        # Guardar segundo parametro
+        # self.generador.new_commnet('2do Parametro')
+        self.generador.new_exp(tmp_p, tmp_p, '1', '+')
+        self.generador.set_stack(tmp_p, right.get_value())
+        # self.generador.new_commnet('fin paso de parametros')
+        # self.generador.new_comment_line()
+        # Cambio de parametro para buscar los parametros
+        # self.generador.new_commnet('cambio de entorno')
+        self.generador.new_entorno(entorno.get_size())
+        self.generador.call_function('isEqualsStr')
+        # Gurdar el return de la funcion
+        # self.generador.new_commnet('Guardar el return de la funcion')
+        return_p = self.generador.new_temp()
+        self.generador.get_stack(return_p, 'P')
+        self.generador.ret_entorno(entorno.get_size())
+
+        # self.generador.new_commnet('fin expresion aritmetica')
+        self.generador.new_comment_line()
+        self.generador.line_break()
+
+        return Valor(return_p, TipoVar.BOOLEAN, True)

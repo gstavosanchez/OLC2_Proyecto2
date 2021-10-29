@@ -63,8 +63,8 @@ class Funcion(Instruccion):
         pass
 
     def set_tipo(self, tipo: TipoVar):
-        if tipo == TipoVar.INT64:
-            tipo = TipoVar.FLOAT64
+        # if tipo == TipoVar.INT64:
+        #     tipo = TipoVar.FLOAT64
         return tipo
 
     def set_list_copy(self, copy1: list, copy2: list):

@@ -26,11 +26,10 @@ class Print(Instruccion):
                 # --------------------------------------------------------------
                 # INT || FLOAT
                 # --------------------------------------------------------------
-                if (
-                    value.get_type() == TipoVar.INT64
-                    or value.get_type() == TipoVar.FLOAT64
-                ):
+                if value.get_type() == TipoVar.FLOAT64:
                     self.generador.print_new(TipoPrint.FLOAT, value.get_value())
+                elif value.get_type() == TipoVar.INT64:
+                    self.generador.print_new(TipoPrint.INT, value.get_value())
                 # --------------------------------------------------------------
                 # BOOLEAN
                 # --------------------------------------------------------------

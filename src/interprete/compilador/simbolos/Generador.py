@@ -46,6 +46,8 @@ class Generador:
         self.is_validate_div = False
         # Index Validated
         self.is_index_validate = False
+        # Comparar String
+        self.is_equals_str = False
 
     def clean(self):
         # contadores
@@ -75,6 +77,8 @@ class Generador:
         self.is_validate_div = False
         # Index validated
         self.is_index_validate = False
+        # Comparar String
+        self.is_equals_str = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -171,9 +175,9 @@ class Generador:
             self.line_break()
             self.new_commnet('fin de guardar temporales')
 
-            index = entorno.get_size()
-            entorno.set_size(index + len(self.temp_list))
-            return index
+        index = entorno.get_size()
+        entorno.set_size(index + len(self.temp_list))
+        return index
 
     def recover_tmp(self, entorno: Entorno, pos: int):
         if len(self.temp_list) > 0:
@@ -254,12 +258,24 @@ class Generador:
         #     text += ' float64;\n\n'
         # return text
         if self.index_temp > 0:
-            text += 'var '
+            var = 'var '
+            float_str = ' float64;\n'
+            text += var
+            aux_i = 10
+            temp_i = 0
             for i in range(self.index_temp):
                 text += f't{i}'
-                if i != self.index_temp - 1:
+                if i != self.index_temp - 1 and i != aux_i:
                     text += ', '
-            text += ' float64;\n\n'
+                if i == aux_i:
+                    text += float_str
+                    if i != self.index_temp:
+                        aux_i += 10
+                        text += var
+
+                temp_i = i
+
+            text += ' float64;\n\n' if temp_i != aux_i else ' \n'
         return text
 
     # -------------- -> FUNCTION <- --------------
@@ -900,5 +916,57 @@ class Generador:
         # EXIT
         self.set_label(end_lb)
         self.set_stack('P', tmp_result)
+        self.new_end_funct()
+        self.in_native = False
+
+    def verify_equals_str(self):
+        if self.is_equals_str:
+            return
+
+        self.is_equals_str = True
+        self.in_native = True
+        self.new_begin_func('isEqualsStr')
+        # -------------- -> L0..L1 <- --------------
+        end_lb = self.new_label()
+        whl_lb = self.new_label()
+        err_lb = self.new_label()
+        succ_lb = self.new_label()
+        # -------------- -> T0..Tn <- --------------
+        tmp_p = self.new_temp()
+        tmp_h_1 = self.new_temp()  # Inicia el primera parametro
+        tmp_h_2 = self.new_temp()  # Inicia el segundo parametro
+        tmp_comp_1 = self.new_temp()  # El valor de la cadena 'h', 'o'
+        tmp_comp_2 = self.new_temp()  # El valor de 2da cadena
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_h_1, tmp_p)
+        self.new_exp(tmp_p, tmp_p, '1', '+')
+        self.get_stack(tmp_h_2, tmp_p)
+
+        # L1: -> While
+        self.set_label(whl_lb)
+        # obtener valores del heap
+        self.get_heap(tmp_comp_1, tmp_h_1)
+        self.get_heap(tmp_comp_2, tmp_h_2)
+        # verficaciones
+        self.new_if(tmp_comp_1, tmp_comp_2, '!=', err_lb)
+        self.new_if(tmp_comp_1, '- 1', '==', succ_lb)
+        # aumentar contadores
+        self.new_exp(tmp_h_1, tmp_h_1, '1', '+')
+        self.new_exp(tmp_h_2, tmp_h_2, '1', '+')
+        # regresar al while
+        self.new_goto(whl_lb)
+
+        # L2: -> Succes
+        self.set_label(succ_lb)
+        self.set_stack('P', '1')
+        self.new_goto(end_lb)
+
+        # L3: -> Error
+        self.set_label(err_lb)
+        self.set_stack('P', '0')
+
+        # L0: -> Salir
+        self.set_label(end_lb)
         self.new_end_funct()
         self.in_native = False

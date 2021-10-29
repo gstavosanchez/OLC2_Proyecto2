@@ -52,10 +52,16 @@ class Aritmetica(Instruccion):
         left_value = left if left else Valor('0', TipoVar.INT64, False)
 
         if self.is_valid(left_value, right) is False:
-            self.generador.new_error('Tipo invalido', self.line, self.column)
+            error_str = (
+                'Op.izquierdor '
+                + get_tipo_var(left_value.get_type())
+                + ' no se puede operar con el Op.derecho '
+                + get_tipo_var(right.get_type())
+            )
+            self.generador.new_error(error_str, self.line, self.column)
             print('error de tipos')
             return
-        tipo_result = verify_type(left_value.get_type(), right.get_value())
+        tipo_result = verify_type(left_value.get_type(), right.get_type())
 
         operation = self.get_type(self.type)
         temp = self.generador.new_temp()  # Nuevo Temporal -> t1...tn

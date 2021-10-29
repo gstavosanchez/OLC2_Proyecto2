@@ -41,6 +41,7 @@ class TipoLogico(Enum):
 class TipoPrint(Enum):
     CARACTER = 1        # "%c"
     FLOAT = 2           # "%g"
+    INT = 3             # "%d"
 
 class TipoUpLowCase(Enum):
     UPPER = 1           # Upper Case
@@ -59,6 +60,8 @@ class TipoStruct(Enum):
 def get_type_print(type_print: TipoPrint):
     if type_print == TipoPrint.CARACTER:
         return 'c', 'int'
+    elif type_print == TipoPrint.INT:
+        return 'd', 'int'
     return 'g', None
 
 
@@ -83,7 +86,7 @@ def get_tipo_var(type: TipoVar):
     elif type == TipoVar.VOID:
         return 'Void'
     else:
-        return type
+        return str(type)
 
 
 def verify_type(left: TipoVar, right: TipoVar):

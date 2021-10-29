@@ -25,7 +25,10 @@ def execute(input_str: str):
     print('')
     print(str_output)
     print('------------------------------------------')
-    return {'compilador': str_output}
+    return {
+        'compilador': str_output,
+        'error_str': str_error,
+    }
 
 
 def get_proyect_data():

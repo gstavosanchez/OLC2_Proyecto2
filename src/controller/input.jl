@@ -1,3 +1,12 @@
+function sumar(a::Int64, b::Int64, msg::String)::Int64
+    println(msg);
+    return a+b;
+end;
+
+
+println(sumar(5, 10, "Hola"));
+
+
 # a = 1;
 # for i in 1:4 
 #     a = a + i;
@@ -29,24 +38,24 @@
 # println(a[6][100])
 # println("gus")
 
-mutable struct Persona
-    edad::Int64;
-    nombre::String;
-end;
-mutable struct Alumno
-    carrera::String;
-    people:: Persona;
-end;
-a = Persona(23, "Gus");
-println(a.edad)
+# mutable struct Persona
+#     edad::Int64;
+#     nombre::String;
+# end;
+# mutable struct Alumno
+#     carrera::String;
+#     people:: Persona;
+# end;
+# a = Persona(23, "Gus");
+# println(a.edad)
 
-estudiante = Alumno("sistemas", a)
+# estudiante = Alumno("sistemas", a)
 
-println(estudiante.carrera)
-println(estudiante.people.nombre)
+# println(estudiante.carrera)
+# println(estudiante.people.nombre)
 
-estudiante.people.nombre = 5
-println(a.nombre)
+# estudiante.people.nombre = 5
+# println(a.nombre)
 
 # acceso a persona.edad
 # t3 = stack[0];
@@ -61,4 +70,3 @@ println(a.nombre)
 # t5 = t5 + 0
 
 # t6 = heap[t5]
-
