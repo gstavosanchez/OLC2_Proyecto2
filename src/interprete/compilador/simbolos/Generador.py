@@ -273,7 +273,7 @@ class Generador:
                     text += ', '
                 if i == aux_i:
                     text += float_str
-                    if i != self.index_temp:
+                    if i != self.index_temp - 1:
                         aux_i += 10
                         text += var
 

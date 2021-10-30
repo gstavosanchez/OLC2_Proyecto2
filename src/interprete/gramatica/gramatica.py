@@ -992,6 +992,7 @@ def p_tipo_funct(t):
                         | RCHAR
                         | RSTRING
                         | RVOID
+                        | ID
     '''
     if len(t) == 2:
         if t[1] == 'Int64':
@@ -1011,6 +1012,9 @@ def p_tipo_funct(t):
 
         elif t[1] == 'void':
             t[0] = TipoVar.VOID
+
+        elif t.slice[1].type == 'ID':
+            t[0] = t[1]
 
 
 # ------------------------------------------------------------------------------

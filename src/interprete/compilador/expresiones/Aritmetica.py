@@ -100,6 +100,7 @@ class Aritmetica(Instruccion):
         # -------------- -> L0...Ln <- --------------
         while_lb = self.generador.new_label()  # L0: -> While Label
         exit_lb = self.generador.new_label()  # L1: -> Exit Label
+        cero_lb = self.generador.new_label()
         # -------------- -> t0...tn <- --------------
         tmp_index = self.generador.new_temp()
         tmp_result = self.generador.new_temp()
@@ -107,7 +108,6 @@ class Aritmetica(Instruccion):
         self.generador.new_exp(tmp_index, '0', '', '')  # t0 = 0
         self.generador.new_exp(tmp_result, '1', '', '')  # t1 = 1
         # -------------- -> L1 -> WHILE LABEL <- --------------
-        self.generador.set_label(while_lb)  # L1:
         if right.get_type() == TipoVar.FLOAT64:
             print('Error exponente es decimial')
             self.generador.new_error(
@@ -125,6 +125,8 @@ class Aritmetica(Instruccion):
             )
             self.generador.new_error(error_str, self.line, self.column)
             return
+        self.generador.new_if(right.get_value(), '0', '==', cero_lb)
+        self.generador.set_label(while_lb)  # L1:
         # if t0 == 2 { goto exit_label }
         self.generador.new_if(tmp_index, right.get_value(), '==', exit_lb)
         # t1 = 5 * t1
@@ -133,6 +135,11 @@ class Aritmetica(Instruccion):
         self.generador.new_exp(tmp_index, tmp_index, '1', '+')
         # goto while_label
         self.generador.new_goto(while_lb)
+
+        # L3: -> Cero label
+        self.generador.set_label(cero_lb)
+        self.generador.new_exp(tmp_result, '1', '', '')
+
         self.generador.set_label(exit_lb)  # L1: -> exit label
 
         # self.generador.new_commnet('fin expresion aritmetica')

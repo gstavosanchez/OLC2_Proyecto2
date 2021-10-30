@@ -10,7 +10,7 @@ class Funcion(Instruccion):
         self.id = id
         self.param_list: list = params_list
         self.instruccions: Instruccion = instruccions
-        self.tipo = self.set_tipo(tipo)
+        self.tipo = tipo
         self.line = line
         self.column = column
         self.pre_compie = True
@@ -36,7 +36,7 @@ class Funcion(Instruccion):
         new_env.set_enviroment_funct(funct_simbol, return_lb)
 
         for param in self.param_list:
-            new_env.save_variable(
+            new_var = new_env.save_variable(
                 param.get_id(),
                 param.get_type(),
                 (
@@ -44,32 +44,23 @@ class Funcion(Instruccion):
                     or param.get_type() == TipoVar.STRUCT
                 ),
             )
+            if new_var is not None:
+                if new_var.get_type() == TipoVar.STRUCT:
+                    new_var.set_type_struct(param.get_type_aux())
+
         self.generador.clear_temp_list()
 
         self.generador.new_begin_func(self.id)
         self.instruccions.compilar(new_env)
-        self.generador.set_label(return_lb)
+
+        if isinstance(self.tipo, TipoVar):
+            if self.tipo != TipoVar.VOID:
+                self.generador.set_label(return_lb)
+        else:
+            self.generador.set_label(return_lb)
+
         self.generador.new_end_funct()
-
-        # PRUEBA
-        # tmp_list_copy2 = self.generador.get_temp_list()
-
         self.generador.set_temp_list(tmp_list_copy)
-        # self.generador.set_temp_list(
-        #     self.set_list_copy(tmp_list_copy, tmp_list_copy2)
-        # )
 
     def set_labels(self):
         pass
-
-    def set_tipo(self, tipo: TipoVar):
-        # if tipo == TipoVar.INT64:
-        #     tipo = TipoVar.FLOAT64
-        return tipo
-
-    def set_list_copy(self, copy1: list, copy2: list):
-        for tmp in copy2:
-            if tmp not in copy1:
-                copy1.append(tmp)
-
-        return copy1

@@ -17,6 +17,8 @@ class SimboloFuncion:
         self.instruccions = instruccions
         self.tipo: TipoVar = tipo
         self.size_param = len(param_list)
+        self.type_struct: str = None
+        self.verify_type(tipo)
 
     def set_id(self, id: str):
         self.id = id
@@ -48,3 +50,10 @@ class SimboloFuncion:
     def get_value_param(self, index: int):
         param: Parametro = self.param_list[index]
         return param
+
+    def verify_type(self, type):
+        if isinstance(type, TipoVar):
+            self.tipo = type
+        else:
+            self.type_struct = type
+            self.tipo = TipoVar.STRUCT
