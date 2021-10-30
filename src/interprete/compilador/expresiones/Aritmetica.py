@@ -48,6 +48,8 @@ class Aritmetica(Instruccion):
                 return self.concat_string(left, right, entorno)
         elif self.type == TipoArtimetico.DIV:
             return self.compare_division(left, right, entorno)
+        elif self.type == TipoArtimetico.MODULO:
+            return self.mod_operation(left, right)
 
         left_value = left if left else Valor('0', TipoVar.INT64, False)
 
@@ -263,3 +265,20 @@ class Aritmetica(Instruccion):
                 return True
 
         return False
+
+    def mod_operation(self, left: Valor, right: Valor):
+        result_type = verify_type(left.get_type(), right.get_type())
+        if result_type == TipoVar.ERROR:
+            error_str = (
+                'El tipo "'
+                + get_tipo_var(left.get_type())
+                + '" y el tipo "'
+                + get_tipo_var(right.get_type())
+                + '" no se permite en el modulo'
+            )
+            self.generador.new_error(error_str, self.line, self.column)
+            return
+
+        temp = self.generador.new_temp()
+        self.generador.mod_operation(temp, left.get_value(), right.get_value())
+        return Valor(temp, result_type, True)

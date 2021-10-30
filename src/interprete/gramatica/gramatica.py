@@ -1,3 +1,4 @@
+from src.interprete.compilador.expresiones.Length import Length
 from src.interprete.compilador.instrucciones.struct.AsignarAccesoStruct import (
     AsignarAccesoStruct,
 )
@@ -70,6 +71,7 @@ reservadas = {
     'end': 'REND',
     'struct': 'RSTRUCT',
     'mutable': 'RMUTABLE',
+    'length': 'RLENGTH',
 }
 # ==============================================================================
 # TOKENS
@@ -870,6 +872,7 @@ def p_exp_fin(t):
                         | array_exp
                         | acces_array
                         | access_struct
+                        | len_array
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -897,6 +900,8 @@ def p_exp_fin(t):
         elif t.slice[1].type == 'acces_array':
             t[0] = t[1]
         elif t.slice[1].type == 'access_struct':
+            t[0] = t[1]
+        elif t.slice[1].type == 'len_array':
             t[0] = t[1]
         elif isinstance(t[1], str):
             value = t[1]
@@ -1042,6 +1047,12 @@ def p_position(t):
     position            : CORA expresion CORC
     '''
     t[0] = t[2]
+
+
+# lenght
+def p_exp_length(t):
+    'len_array          : RLENGTH PARA expresion PARC'
+    t[0] = Length(t[3], t.lineno(1), find_column(input_data, t.slice[1]))
 
 
 # ==============================================================================

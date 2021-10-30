@@ -48,6 +48,8 @@ class Generador:
         self.is_index_validate = False
         # Comparar String
         self.is_equals_str = False
+        # Lenght String
+        self.is_len_str = False
 
     def clean(self):
         # contadores
@@ -79,6 +81,8 @@ class Generador:
         self.is_index_validate = False
         # Comparar String
         self.is_equals_str = False
+        # Lenght String
+        self.is_len_str = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -244,7 +248,7 @@ class Generador:
     # -------------- -> HEADER <- --------------
     def get_header(self):
         text = 'package main\n'
-        text += 'import (\n\t"fmt"\n)\n\n'
+        text += 'import (\n\t"fmt"\n\t"math"\n)\n\n'
         # Declaracion de variables
         text += 'var P, H float64;\n'
         text += 'var stack [30101999]float64;\n'
@@ -322,6 +326,10 @@ class Generador:
                 if comment == ''
                 else f'{result} = {left} {op} {right}; //{comment}\n'
             )
+        self.set_code(text)
+
+    def mod_operation(self, result: str, left: str, right):
+        text = f'{result} = math.Mod({left}, {right}); \n'
         self.set_code(text)
 
     # --------------------------------------------------------------------------
@@ -968,5 +976,42 @@ class Generador:
 
         # L0: -> Salir
         self.set_label(end_lb)
+        self.new_end_funct()
+        self.in_native = False
+
+    def get_len_str(self):
+        if self.is_len_str:
+            return
+
+        self.is_len_str = True
+        self.in_native = True
+        self.new_begin_func('getLenStr')
+        # -------------- -> L0...Ln <- --------------
+        end_lb = self.new_label()
+        whl_lb = self.new_label()
+        # -------------- -> T0...Tn <- --------------
+        tmp_p = self.new_temp()
+        tmp_h = self.new_temp()
+        tmp_result = self.new_temp()
+        tmp_compare = self.new_temp()
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_h, tmp_p)
+        self.get_heap(tmp_compare, tmp_h)
+        self.new_exp(tmp_result, '0', '', '')
+
+        # L1: -> While
+        self.set_label(whl_lb)
+        # verificar si es la ultima posicion
+        self.new_if(tmp_compare, '- 1', '==', end_lb)
+        # aumenar contador
+        self.new_exp(tmp_h, tmp_h, '1', '+')
+        self.get_heap(tmp_compare, tmp_h)
+        self.new_exp(tmp_result, tmp_result, '1', '+')
+        self.new_goto(whl_lb)
+
+        # L0: -> Exit
+        self.set_label(end_lb)
+        self.set_stack('P', tmp_result)
         self.new_end_funct()
         self.in_native = False
