@@ -1,33 +1,36 @@
-from src.interprete.compilador.expresiones.Length import Length
-from src.interprete.compilador.instrucciones.struct.AsignarAccesoStruct import (
-    AsignarAccesoStruct,
-)
-from src.interprete.compilador.expresiones.AccesoStruct import AccesoStruct
-from src.interprete.compilador.instrucciones.struct.Struct import Struct
 from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
-from src.interprete.compilador.expresiones.Array import Arreglo
 from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
-from src.interprete.compilador.instrucciones.tranferencia.Return import Return
-from src.interprete.compilador.instrucciones.function.Function import Funcion
-from src.interprete.compilador.simbolos.Parametro import Parametro
-from src.interprete.compilador.instrucciones.control.For import For
+from src.interprete.compilador.expresiones.AccesoStruct import AccesoStruct
 from src.interprete.compilador.expresiones.AccesoVa import AccesoVariable
 from src.interprete.compilador.expresiones.Aritmetica import Aritmetica
+from src.interprete.compilador.expresiones.Array import Arreglo
+from src.interprete.compilador.expresiones.Length import Length
 from src.interprete.compilador.expresiones.Logica import Logica
 from src.interprete.compilador.expresiones.natives.UpLow import ToUpLowCase
 from src.interprete.compilador.expresiones.Primitivo import Primitivo
 from src.interprete.compilador.expresiones.Relacional import Relacional
+from src.interprete.compilador.instrucciones.array.AsignAccessArray import (
+    AsignarAccesoArray,
+)
+from src.interprete.compilador.instrucciones.control.For import For
 from src.interprete.compilador.instrucciones.control.IF import If
 from src.interprete.compilador.instrucciones.control.While import While
+from src.interprete.compilador.instrucciones.function.Function import Funcion
 from src.interprete.compilador.instrucciones.Print import Print
 from src.interprete.compilador.instrucciones.Statement import Statement
+from src.interprete.compilador.instrucciones.struct.AsignarAccesoStruct import (
+    AsignarAccesoStruct,
+)
+from src.interprete.compilador.instrucciones.struct.Struct import Struct
 from src.interprete.compilador.instrucciones.tranferencia.Break import Break
 from src.interprete.compilador.instrucciones.tranferencia.Continue import (
     Continue,
 )
+from src.interprete.compilador.instrucciones.tranferencia.Return import Return
 from src.interprete.compilador.instrucciones.variable.Asignacion import (
     Asignacion,
 )
+from src.interprete.compilador.simbolos.Parametro import Parametro
 from src.interprete.compilador.tipos.Tipo import (
     TipoArtimetico,
     TipoLogico,
@@ -300,6 +303,8 @@ def p_inst(t):
                         | break_inst fin_inst
                         | continue_inst fin_inst
                         | return_inst fin_inst
+
+                        | asig_access_array fin_inst
     '''
     t[0] = t[1]
 
@@ -652,10 +657,21 @@ def p_list_att_id(t):
 
 
 # Asignar Acceso a Struct
-def p_int_assing_acces_struc(t):
+def p_inst_assing_acces_struc(t):
     'assign_atr_struct  : ID PUNTO list_att_id IGUAL expresion'
     t[0] = AsignarAccesoStruct(
         t[1], t[3], t[5], t.lineno(2), find_column(input_data, t.slice[2])
+    )
+
+
+# ------------------------------------------------------------------------------
+# ARREGLO
+def p_inst_assing_acces_array(t):
+    '''
+    asig_access_array   : ID list_position IGUAL expresion
+    '''
+    t[0] = AsignarAccesoArray(
+        t[1], t[2], t[4], t.lineno(3), find_column(input_data, t.slice[3])
     )
 
 

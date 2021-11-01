@@ -15,33 +15,19 @@ var t41, t42, t43, t44 float64
 
 // -----------------------------------------------------------
 // FUNCIONES NATIVAS
-func printStr() {
-	t3 = P + 1 // Puntero del parametro
-	t4 = stack[int(t3)]
-L2:
-	t5 = heap[int(t4)]
-	if t5 == -1 {
-		goto L1
-	}
-	fmt.Printf("%c", int(t5))
-	t4 = t4 + 1 //aumentar el contador del heap
-	goto L2
-L1:
-	return
-}
 func indexValidate() {
-	t34 = P + 1
-	t35 = stack[int(t34)]
-	t34 = t34 + 1
-	t36 = stack[int(t34)]
-	if t36 < 1 {
-		goto L5
+	t13 = P + 1
+	t14 = stack[int(t13)]
+	t13 = t13 + 1
+	t15 = stack[int(t13)]
+	if t15 < 1 {
+		goto L2
 	}
-	if t36 > t35 {
-		goto L5
+	if t15 > t14 {
+		goto L2
 	}
-	goto L6
-L5:
+	goto L3
+L2:
 	fmt.Printf("%c", int(66))
 	fmt.Printf("%c", int(111))
 	fmt.Printf("%c", int(117))
@@ -53,43 +39,26 @@ L5:
 	fmt.Printf("%c", int(114))
 	fmt.Printf("%c", int(111))
 	fmt.Printf("%c", int(114))
-	t37 = 1
-	goto L4
-L6:
-	t37 = 0
-L4:
-	stack[int(P)] = t37
+	t16 = 1
+	goto L1
+L3:
+	t16 = 0
+L1:
+	stack[int(P)] = t16
 	return
 }
-
-// -----------------------------------------------------------
-// FUNCIONES
-func saludar() {
-
-	// -----------------------------------------------------------
-	// INICIO PRINT
-	t2 = P + 1
-	t0 = stack[int(t2)]
-	t0 = t0 + 0
-	t1 = heap[int(t0)]
-	// -----------------------------------------------------------
-	// GUARDAR VARIABLE EN STACK
-	t6 = P + 2
-	t6 = t6 + 1
-	stack[int(t6)] = t1
-	// -----------------------------------------------------------
-
-	P = P + 2
-	printStr()
-
-	// GUARDAR RETURN DE LA FUNCION
-	t7 = stack[int(P)]
-	// REGRESO DE ENTORNO
-	P = P - 2
-
-	fmt.Printf("%c", int(10))
-	// FIN PRINT
-	// -----------------------------------------------------------
+func printStr() {
+	t22 = P + 1 // Puntero del parametro
+	t23 = stack[int(t22)]
+L5:
+	t24 = heap[int(t23)]
+	if t24 == -1 {
+		goto L4
+	}
+	fmt.Printf("%c", int(t24))
+	t23 = t23 + 1 //aumentar el contador del heap
+	goto L5
+L4:
 	return
 }
 
@@ -101,223 +70,65 @@ func main() {
 	H = 0 //Puntero Heap
 
 	// -----------------------------------------------------------
-	// DECLARAR STRUCT ALUMNO()
-	t8 = H
-	t9 = t8
-	H = H + 2 //Almacenar espacio en heap del struct Alumno
-	// PRIMITIVO: SISTEMAS
-
-	t10 = H
-	heap[int(H)] = 115 // s
-	H = H + 1
-	heap[int(H)] = 105 // i
-	H = H + 1
-	heap[int(H)] = 115 // s
-	H = H + 1
-	heap[int(H)] = 116 // t
-	H = H + 1
-	heap[int(H)] = 101 // e
-	H = H + 1
-	heap[int(H)] = 109 // m
-	H = H + 1
-	heap[int(H)] = 97 // a
-	H = H + 1
-	heap[int(H)] = 115 // s
-	H = H + 1
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-
-	heap[int(t9)] = t10
-	t9 = t9 + 1
-
-	// -----------------------------------------------------------
-	// DECLARAR STRUCT PERSONA()
-	t11 = H
-	t12 = t11
-	H = H + 2 //Almacenar espacio en heap del struct Persona
-	// PRIMITIVO: 23
-	heap[int(t12)] = 23
-	t12 = t12 + 1
-	// PRIMITIVO: GUS
-
-	t13 = H
-	heap[int(H)] = 71 // G
-	H = H + 1
-	heap[int(H)] = 117 // u
-	H = H + 1
-	heap[int(H)] = 115 // s
-	H = H + 1
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-
-	heap[int(t12)] = t13
-	t12 = t12 + 1
-	heap[int(t9)] = t11
-	t9 = t9 + 1
-	// -----------------------------------------------------------
-	// ASIGNACION: ESTUDIANTE
-	stack[int(0)] = t8
-	// FIN ASIGNACION DE ESTUDIANTE
-	// -----------------------------------------------------------
-
-	// -----------------------------------------------------------
-	// LLAMADO A FUNCION: SALUDAR
-	// GUARDAR TEMPORALES
-
-	t14 = P + 1
-	stack[int(t14)] = t8
-	t14 = t14 + 1
-	stack[int(t14)] = t9
-	t14 = t14 + 1
-	stack[int(t14)] = t10
-	t14 = t14 + 1
-	stack[int(t14)] = t11
-	t14 = t14 + 1
-	stack[int(t14)] = t12
-	t14 = t14 + 1
-	stack[int(t14)] = t13
-
-	// FIN DE GUARDAR TEMPORALES
-	// -----------------------------------------------------------
-	// ACCESO A VARIABLE: ESTUDIANTE
-	t15 = stack[int(0)]
-	// FIN ACCESO
-	// -----------------------------------------------------------
-
-	t16 = P + 8
-	stack[int(t16)] = t15
-	P = P + 7
-	saludar()
-	t16 = stack[int(P)]
-	P = P - 7
-	// RECUPERAR TEMPORALES
-
-	t17 = P + 1
-	t8 = stack[int(t17)]
-	t17 = t17 + 1
-	t9 = stack[int(t17)]
-	t17 = t17 + 1
-	t10 = stack[int(t17)]
-	t17 = t17 + 1
-	t11 = stack[int(t17)]
-	t17 = t17 + 1
-	t12 = stack[int(t17)]
-	t17 = t17 + 1
-	t13 = stack[int(t17)]
-	t17 = t17 + 1
-	t15 = stack[int(t17)]
-
-	// FIN DE RECUPERACION
-	// FIN LLAMADO A FUNCION
-	// -----------------------------------------------------------
-
-	// -----------------------------------------------------------
-	// INICIO PRINT
-	// PRIMITIVO: HOLA MUNDO
-
-	t18 = H
-	heap[int(H)] = 104 // h
-	H = H + 1
-	heap[int(H)] = 111 // o
-	H = H + 1
-	heap[int(H)] = 108 // l
-	H = H + 1
-	heap[int(H)] = 97 // a
-	H = H + 1
-	heap[int(H)] = 32 //
-	H = H + 1
-	heap[int(H)] = 109 // m
-	H = H + 1
-	heap[int(H)] = 117 // u
-	H = H + 1
-	heap[int(H)] = 110 // n
-	H = H + 1
-	heap[int(H)] = 100 // d
-	H = H + 1
-	heap[int(H)] = 111 // o
-	H = H + 1
-	heap[int(H)] = -1 // FIN CADENA
-	H = H + 1
-
-	// -----------------------------------------------------------
-	// GUARDAR VARIABLE EN STACK
-	t19 = P + 1
-	t19 = t19 + 1
-	stack[int(t19)] = t18
-	// -----------------------------------------------------------
-
-	P = P + 1
-	printStr()
-
-	// GUARDAR RETURN DE LA FUNCION
-	t20 = stack[int(P)]
-	// REGRESO DE ENTORNO
-	P = P - 1
-
-	fmt.Printf("%c", int(10))
-	// FIN PRINT
-	// -----------------------------------------------------------
-
-	// -----------------------------------------------------------
 	// ARREGLO
-	t21 = H            // Apuntador donde se guarda el array
-	t22 = H            // Contador del heap
-	H = H + 6          //Almacenar espacio en heap longitud + array
-	heap[int(t22)] = 5 // Guadar longtud arreglo
-	t22 = t22 + 1
+	t0 = H            // Apuntador donde se guarda el array
+	t1 = H            // Contador del heap
+	H = H + 6         //Almacenar espacio en heap longitud + array
+	heap[int(t1)] = 5 // Guadar longtud arreglo
+	t1 = t1 + 1
 	// GUARDAR VALORES
 	// PRIMITIVO: H
 
-	t23 = H
+	t2 = H
 	heap[int(H)] = 104 // h
 	H = H + 1
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t22)] = t23
-	t22 = t22 + 1
+	heap[int(t1)] = t2
+	t1 = t1 + 1
 	// PRIMITIVO: O
 
-	t24 = H
+	t3 = H
 	heap[int(H)] = 111 // o
 	H = H + 1
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t22)] = t24
-	t22 = t22 + 1
+	heap[int(t1)] = t3
+	t1 = t1 + 1
 	// PRIMITIVO: L
 
-	t25 = H
+	t4 = H
 	heap[int(H)] = 108 // l
 	H = H + 1
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t22)] = t25
-	t22 = t22 + 1
+	heap[int(t1)] = t4
+	t1 = t1 + 1
 	// PRIMITIVO: A
 
-	t26 = H
+	t5 = H
 	heap[int(H)] = 97 // a
 	H = H + 1
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t22)] = t26
-	t22 = t22 + 1
+	heap[int(t1)] = t5
+	t1 = t1 + 1
 
 	// -----------------------------------------------------------
 	// ARREGLO
-	t27 = H            // Apuntador donde se guarda el array
-	t28 = H            // Contador del heap
-	H = H + 3          //Almacenar espacio en heap longitud + array
-	heap[int(t28)] = 2 // Guadar longtud arreglo
-	t28 = t28 + 1
+	t6 = H            // Apuntador donde se guarda el array
+	t7 = H            // Contador del heap
+	H = H + 3         //Almacenar espacio en heap longitud + array
+	heap[int(t7)] = 2 // Guadar longtud arreglo
+	t7 = t7 + 1
 	// GUARDAR VALORES
 	// PRIMITIVO: JA
 
-	t29 = H
+	t8 = H
 	heap[int(H)] = 106 // j
 	H = H + 1
 	heap[int(H)] = 97 // a
@@ -325,11 +136,11 @@ func main() {
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t28)] = t29
-	t28 = t28 + 1
+	heap[int(t7)] = t8
+	t7 = t7 + 1
 	// PRIMITIVO: JA
 
-	t30 = H
+	t9 = H
 	heap[int(H)] = 106 // j
 	H = H + 1
 	heap[int(H)] = 97 // a
@@ -337,19 +148,19 @@ func main() {
 	heap[int(H)] = -1 // FIN CADENA
 	H = H + 1
 
-	heap[int(t28)] = t30
-	t28 = t28 + 1
+	heap[int(t7)] = t9
+	t7 = t7 + 1
 	// -----------------------------------------------------------
 	// FIN ARREGLO
 
-	heap[int(t22)] = t27
-	t22 = t22 + 1
+	heap[int(t1)] = t6
+	t1 = t1 + 1
 	// -----------------------------------------------------------
 	// FIN ARREGLO
 
 	// -----------------------------------------------------------
 	// ASIGNACION: HO
-	stack[int(1)] = t21
+	stack[int(0)] = t0
 	// FIN ASIGNACION DE HO
 	// -----------------------------------------------------------
 
@@ -360,67 +171,205 @@ func main() {
 
 	// -----------------------------------------------------------
 	// ACCESO ARRAY "HO"
-	t31 = stack[int(1)]
-	t33 = heap[int(t31)]
+	t10 = stack[int(0)]
+	t12 = heap[int(t10)]
 	// PRIMITIVO: 5
 
 	// -----------------------------------------------------------
-	t38 = P + 2
+	t17 = P + 1
+	t17 = t17 + 1
+	stack[int(t17)] = t12
+	t17 = t17 + 1
+	stack[int(t17)] = 5
+	P = P + 1
+	indexValidate()
+	t18 = stack[int(P)]
+	P = P - 1
+	// -----------------------------------------------------------
+
+	if t18 == 1 {
+		goto L0
+	}
+	t10 = t10 + 1 //saltar len
+	// PRIMITIVO: 5
+	t10 = t10 + 4
+	// PRIMITIVO: 1
+	t19 = heap[int(t10)]
+
+	// -----------------------------------------------------------
+	t20 = P + 1
+	t20 = t20 + 1
+	stack[int(t20)] = t19
+	t20 = t20 + 1
+	stack[int(t20)] = 1
+	P = P + 1
+	indexValidate()
+	t21 = stack[int(P)]
+	P = P - 1
+	// -----------------------------------------------------------
+
+	if t21 == 1 {
+		goto L0
+	}
+	t19 = t19 + 1 //skip len
+	t19 = t19 + 0
+	t11 = heap[int(t19)]
+	// FIN ACCESO ARRAY
+	// -----------------------------------------------------------
+
+L0:
+	// -----------------------------------------------------------
+	// GUARDAR VARIABLE EN STACK
+	t25 = P + 1
+	t25 = t25 + 1
+	stack[int(t25)] = t11
+	// -----------------------------------------------------------
+
+	P = P + 1
+	printStr()
+
+	// GUARDAR RETURN DE LA FUNCION
+	t26 = stack[int(P)]
+	// REGRESO DE ENTORNO
+	P = P - 1
+
+	fmt.Printf("%c", int(10))
+	// FIN PRINT
+	// -----------------------------------------------------------
+	// PRIMITIVO: 5
+	// PRIMITIVO: 1
+	// PRIMITIVO: KKQQ
+
+	t27 = H
+	heap[int(H)] = 75 // K
+	H = H + 1
+	heap[int(H)] = 75 // K
+	H = H + 1
+	heap[int(H)] = 113 // q
+	H = H + 1
+	heap[int(H)] = 113 // q
+	H = H + 1
+	heap[int(H)] = -1 // FIN CADENA
+	H = H + 1
+
+	// -----------------------------------------------------------
+	// ASIGNAR ACCESO ARRAY "HO"
+	t28 = stack[int(0)]
+	t29 = heap[int(t28)]
+	// PRIMITIVO: 5
+
+	// -----------------------------------------------------------
+	t30 = P + 1
+	t30 = t30 + 1
+	stack[int(t30)] = t29
+	t30 = t30 + 1
+	stack[int(t30)] = 5
+	P = P + 1
+	indexValidate()
+	t31 = stack[int(P)]
+	P = P - 1
+	// -----------------------------------------------------------
+
+	if t31 == 1 {
+		goto L6
+	}
+	t28 = t28 + 1 //saltar len
+	// PRIMITIVO: 5
+	t28 = t28 + 4
+	// PRIMITIVO: 1
+	t32 = heap[int(t28)]
+
+	// -----------------------------------------------------------
+	t33 = P + 1
+	t33 = t33 + 1
+	stack[int(t33)] = t32
+	t33 = t33 + 1
+	stack[int(t33)] = 1
+	P = P + 1
+	indexValidate()
+	t34 = stack[int(P)]
+	P = P - 1
+	// -----------------------------------------------------------
+
+	if t34 == 1 {
+		goto L6
+	}
+	t32 = t32 + 1 //skip len
+	t32 = t32 + 0
+	heap[int(t32)] = t27
+	// FIN ACCESO ARRAY
+	// -----------------------------------------------------------
+
+L6:
+
+	// -----------------------------------------------------------
+	// INICIO PRINT
+	// PRIMITIVO: 5
+	// PRIMITIVO: 1
+
+	// -----------------------------------------------------------
+	// ACCESO ARRAY "HO"
+	t35 = stack[int(0)]
+	t37 = heap[int(t35)]
+	// PRIMITIVO: 5
+
+	// -----------------------------------------------------------
+	t38 = P + 1
 	t38 = t38 + 1
-	stack[int(t38)] = t33
+	stack[int(t38)] = t37
 	t38 = t38 + 1
 	stack[int(t38)] = 5
-	P = P + 2
+	P = P + 1
 	indexValidate()
 	t39 = stack[int(P)]
-	P = P - 2
+	P = P - 1
 	// -----------------------------------------------------------
 
 	if t39 == 1 {
-		goto L3
+		goto L7
 	}
-	t31 = t31 + 1 //saltar len
+	t35 = t35 + 1 //saltar len
 	// PRIMITIVO: 5
-	t31 = t31 + 4
+	t35 = t35 + 4
 	// PRIMITIVO: 1
-	t40 = heap[int(t31)]
+	t40 = heap[int(t35)]
 
 	// -----------------------------------------------------------
-	t41 = P + 2
+	t41 = P + 1
 	t41 = t41 + 1
 	stack[int(t41)] = t40
 	t41 = t41 + 1
 	stack[int(t41)] = 1
-	P = P + 2
+	P = P + 1
 	indexValidate()
 	t42 = stack[int(P)]
-	P = P - 2
+	P = P - 1
 	// -----------------------------------------------------------
 
 	if t42 == 1 {
-		goto L3
+		goto L7
 	}
 	t40 = t40 + 1 //skip len
 	t40 = t40 + 0
-	t32 = heap[int(t40)]
+	t36 = heap[int(t40)]
 	// FIN ACCESO ARRAY
 	// -----------------------------------------------------------
 
-L3:
+L7:
 	// -----------------------------------------------------------
 	// GUARDAR VARIABLE EN STACK
-	t43 = P + 2
+	t43 = P + 1
 	t43 = t43 + 1
-	stack[int(t43)] = t32
+	stack[int(t43)] = t36
 	// -----------------------------------------------------------
 
-	P = P + 2
+	P = P + 1
 	printStr()
 
 	// GUARDAR RETURN DE LA FUNCION
 	t44 = stack[int(P)]
 	// REGRESO DE ENTORNO
-	P = P - 2
+	P = P - 1
 
 	fmt.Printf("%c", int(10))
 	// FIN PRINT
