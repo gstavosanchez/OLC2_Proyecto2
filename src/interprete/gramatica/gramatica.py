@@ -531,7 +531,7 @@ def p_inst_func(t):
     function_inst       : RFUNCTION ID PARA PARC tipo_return statement REND
                         | RFUNCTION ID PARA list_param PARC tipo_return statement REND
     '''
-    if len(t) == 7:
+    if len(t) == 8:
         t[0] = Funcion(
             t[2],
             [],

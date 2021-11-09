@@ -13,7 +13,13 @@ class Statement(Instruccion):
                 inst.compilar(entorno)
         except Exception:
             print(Exception)
-            print('error al compilar lista de instrucciones')
+            print('Error al compilar lista de instrucciones')
+            self.generador.new_error(
+                'Error al compilar lista de instrucciones',
+                self.line,
+                self.column,
+            )
+            return
 
     def set_labels(self):
         pass

@@ -89,7 +89,7 @@ class AsignarAccesoArray(Instruccion):
         type_aux = variable.get_tipo_aux()
         if len(self.position_list) == 1:
             index_val: Valor = self.position_list[0].compilar(entorno)
-            index = index_val.get_value() - 1
+            index = self.get_index(index_val)
 
             self.generador.new_exp(tmp_recov, tmp_recov, index, '+')
             self.generador.set_heap(tmp_recov, value_compiled.get_value())
@@ -101,7 +101,9 @@ class AsignarAccesoArray(Instruccion):
                 # -------------- -> TEMPRALES <- --------------
                 tmp_aux = tmp_recov  # t1
                 if x == 0:
-                    self.generador.new_exp(tmp_aux, tmp_aux, index - 1, '+')
+                    self.generador.new_exp(
+                        tmp_aux, tmp_aux, self.get_index(index_val), '+'
+                    )
                     continue
                 tmp_recov = self.generador.new_temp()  # t2
 
@@ -114,7 +116,9 @@ class AsignarAccesoArray(Instruccion):
                 self.generador.new_exp(
                     tmp_recov, tmp_recov, '1', '+', 'skip len'
                 )
-                self.generador.new_exp(tmp_recov, tmp_recov, index - 1, '+')
+                self.generador.new_exp(
+                    tmp_recov, tmp_recov, self.get_index(index_val), '+'
+                )
 
             self.generador.set_heap(tmp_recov, value_compiled.get_value())
         self.generador.end_comment(f'fin acceso array')
@@ -135,8 +139,8 @@ class AsignarAccesoArray(Instruccion):
             index: Valor = i.compilar(entorno)
             if index.get_type() != TipoVar.INT64:
                 return False
-            if index.get_value() < 1:
-                return False
+            # if index.get_value() < 1:
+            #     return False
 
         return True
 
@@ -175,3 +179,13 @@ class AsignarAccesoArray(Instruccion):
         self.generador.line_break()
 
         return Valor(return_p, TipoVar.INT64, True)
+
+    def get_index(self, index: Valor):
+        new_value = None
+        if index.get_is_temp():
+            new_value = index.get_value()
+            self.generador.new_exp(new_value, index.get_value(), '1', '-')
+        else:
+            new_value = index.get_value() - 1
+
+        return new_value
