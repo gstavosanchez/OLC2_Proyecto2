@@ -31,7 +31,7 @@ class Funcion(Instruccion):
         funct_simbol = entorno.get_function(self.id)
         return_lb = self.generador.new_label()
 
-        tmp_list_copy = self.generador.get_temp_list()
+        # tmp_record = self.generador.get_temp_record()
 
         new_env.set_enviroment_funct(funct_simbol, return_lb)
 
@@ -48,7 +48,7 @@ class Funcion(Instruccion):
                 if new_var.get_type() == TipoVar.STRUCT:
                     new_var.set_type_struct(param.get_type_aux())
 
-        self.generador.clear_temp_list()
+        self.generador.free_all_temps()
 
         self.generador.new_begin_func(self.id)
         self.instruccions.compilar(new_env)
@@ -60,7 +60,7 @@ class Funcion(Instruccion):
             self.generador.set_label(return_lb)
 
         self.generador.new_end_funct()
-        self.generador.set_temp_list(tmp_list_copy)
+        self.generador.free_all_temps()
 
     def set_labels(self):
         pass

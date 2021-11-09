@@ -106,7 +106,7 @@ class Asignacion(Instruccion):
         tmp_pos = new_var.get_position()
         if not new_var.get_is_global():
             tmp_pos = self.generador.new_temp()
-            self.generador.free_temp(tmp_pos)  # FIXME: REVISAR
+            # self.generador.free_temp(tmp_pos)  # FIXME: REVISAR
             self.generador.new_exp(tmp_pos, 'P', new_var.get_position(), '+')
 
         if value_compiled.get_type() == TipoVar.BOOLEAN:

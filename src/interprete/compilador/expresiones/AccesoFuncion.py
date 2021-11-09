@@ -50,7 +50,6 @@ class AccesoFuncion(Instruccion):
                 if param_send.get_type() == TipoVar.BOOLEAN:
                     tmp = self.generador.new_temp()
                     tmp_lb = self.generador.new_label()
-                    self.generador.free_temp(tmp)
 
                     self.generador.set_label(param_send.get_true_label())
                     self.generador.new_exp(
@@ -70,7 +69,7 @@ class AccesoFuncion(Instruccion):
                 i += 1
 
             tmp = self.generador.new_temp()
-            self.generador.free_temp(tmp)
+
             if len(params_values) > 0:
                 x = 0
                 self.generador.new_exp(tmp, 'P', entorno.get_size() + 1, '+')
@@ -88,7 +87,6 @@ class AccesoFuncion(Instruccion):
             self.generador.get_stack(tmp, 'P')
             self.generador.ret_entorno(entorno.get_size())
             self.generador.recover_tmp(entorno, size)
-            self.generador.add_temp(tmp)
 
             if funct_simbol.get_type() != TipoVar.BOOLEAN:
                 self.generador.end_comment('fin llamado a funcion')

@@ -494,6 +494,7 @@ def p_inst_return(t):
 def p_inst_for(t):
     '''
     for_inst            : RFOR ID RIN expresion DPUNTOS expresion statement REND
+                        | RFOR ID RIN expresion statement REND
     '''
     if len(t) == 9:
         t[0] = For(
@@ -503,6 +504,10 @@ def p_inst_for(t):
             t.lineno(1),
             find_column(input_data, t.slice[1]),
             t[6],
+        )
+    else:
+        t[0] = For(
+            t[2], t[4], t[5], t.lineno(1), find_column(input_data, t.slice[1])
         )
 
 

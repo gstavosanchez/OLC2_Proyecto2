@@ -173,6 +173,7 @@ class Relacional(Instruccion):
         # self.generador.new_commnet('Paso de parametros')
         # Temporal para almacenar parametros
         tmp_p = self.generador.new_temp()
+        # self.generador.free_temp(tmp_p)
         self.generador.new_exp(tmp_p, 'P', entorno.get_size(), '+')
         # Guardar primer parametro
         # self.generador.new_commnet('1er Parametro')
@@ -191,6 +192,7 @@ class Relacional(Instruccion):
         # Gurdar el return de la funcion
         # self.generador.new_commnet('Guardar el return de la funcion')
         return_p = self.generador.new_temp()
+        # self.generador.free_temp(return_p)
         self.generador.get_stack(return_p, 'P')
         self.generador.ret_entorno(entorno.get_size())
 

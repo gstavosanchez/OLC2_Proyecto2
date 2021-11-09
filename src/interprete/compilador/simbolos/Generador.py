@@ -30,6 +30,7 @@ class Generador:
         self.in_native = False
         # lista temporales y nativas
         self.temp_list: list = []
+        self.temp_recors: dict = {}
         # print
         self.is_print = False
         # Error List
@@ -63,6 +64,7 @@ class Generador:
         self.in_native = False
         # lista temporales y nativas
         self.temp_list: list = []
+        self.temp_recors: dict = {}
         # print
         self.is_print = False
         # Error List
@@ -97,24 +99,71 @@ class Generador:
         temp = f't{self.index_temp}'
         self.index_temp += 1
         self.temp_list.append(temp)
+        self.temp_recors[temp] = temp
         return temp
 
-    def free_temp(self, temp: str):
-        if temp in self.temp_list:
-            self.temp_list.remove(temp)
+    def free_temp(self, tmp: str):
+        if tmp in self.temp_recors:
+            self.temp_recors.pop(tmp, None)
 
-    def add_temp(self, tmp: str):
-        if tmp not in self.temp_list:
-            self.temp_list.append(tmp)
+    # def add_temp(self, tmp: str):
+    #     if tmp not in self.temp_recors.keys():
+    #         self.temp_recors[tmp] = tmp
 
-    def set_temp_list(self, tmp_list: list):
-        self.temp_list = tmp_list
+    # def set_temp_record(self, tmp_record: dict):
+    #     self.temp_recors = tmp_record
 
-    def get_temp_list(self):
-        return self.temp_list
+    # def get_temp_record(self):
+    #     return self.temp_recors
 
-    def clear_temp_list(self):
-        self.temp_list = []
+    def free_all_temps(self):
+        self.temp_recors = {}
+
+    # -------------- -> SAVE TEMPS  <- --------------
+    def save_temps(self, entorno: Entorno):
+        size = 0
+        if len(self.temp_recors) > 0:
+            tmp = self.new_temp()
+            self.free_temp(tmp)
+
+            self.new_commnet('Guardar temporales')
+            self.line_break()
+            self.new_exp(tmp, 'P', entorno.get_size(), '+')
+
+            for value in self.temp_recors:
+                size += 1
+                self.set_stack(tmp, value, '', False)
+                if size != len(self.temp_recors):  # Revisar si -1
+                    self.new_exp(tmp, tmp, '1', '+')
+
+            self.line_break()
+            self.new_commnet('fin de guardar temporales')
+
+        lenght = entorno.get_size()
+        entorno.set_size(lenght + size)
+        return lenght
+
+    def recover_tmp(self, entorno: Entorno, pos: int):
+        if len(self.temp_recors) > 0:
+            tmp = self.new_temp()
+            self.free_temp(tmp)
+            size = 0
+
+            self.new_commnet('Recuperar temporales')
+            self.line_break()
+
+            self.new_exp(tmp, 'P', pos, '+')
+
+            for value in self.temp_recors:
+                size += 1
+                self.get_stack(value, tmp)
+                if size != len(self.temp_recors):
+                    self.new_exp(tmp, tmp, '1', '+')
+
+            self.line_break()
+            self.new_commnet('fin de recuperacion')
+
+            entorno.set_size(pos)
 
     # -------------- -> LABEL O ETIQUTA <- --------------
     def new_label(self):
@@ -154,57 +203,11 @@ class Generador:
             op (str): operacion a realizar
             label (str): etiqueta a saltar
         """
+        self.free_temp(left)
+        self.free_temp(right)
         if_str = f'if {left} {op} {right} '
         if_str += '{ goto ' + str(label) + '; }\n'
         self.set_code(if_str)
-
-    # -------------- -> SAVE TEMPS  <- --------------
-    def save_temps(self, entorno: Entorno):
-        if len(self.temp_list) > 0:
-            tmp = self.new_temp()
-            # this.freeTemp(temp);
-            self.free_temp(tmp)
-
-            size = 0
-            self.new_commnet('Guardar temporales')
-            self.line_break()
-            self.new_exp(tmp, 'P', entorno.get_size(), '+')
-
-            for value in self.temp_list:
-                size += 1
-                self.set_stack(tmp, value)
-                if size != len(self.temp_list):  # Revisar si -1
-                    self.new_exp(tmp, tmp, '1', '+')
-
-            self.line_break()
-            self.new_commnet('fin de guardar temporales')
-
-        index = entorno.get_size()
-        entorno.set_size(index + len(self.temp_list))
-        return index
-
-    def recover_tmp(self, entorno: Entorno, pos: int):
-        if len(self.temp_list) > 0:
-            tmp = self.new_temp()
-            # freeTemp(temp)
-            self.free_temp(tmp)
-            size = 0
-
-            self.new_commnet('Recuperar temporales')
-            self.line_break()
-
-            self.new_exp(tmp, 'P', pos, '+')
-
-            for value in self.temp_list:
-                size += 1
-                self.get_stack(value, tmp)
-                if size != len(self.temp_list):
-                    self.new_exp(tmp, tmp, '1', '+')
-
-            self.line_break()
-            self.new_commnet('fin de recuperacion')
-
-            entorno.set_size(pos)
 
     # --------------------------------------------------------------------------
     # CODE MAIN GOLANG
@@ -313,6 +316,8 @@ class Generador:
     def new_exp(
         self, result: str, left: str, right: str, op: str, comment: str = ''
     ):
+        self.free_temp(left)
+        self.free_temp(right)
         text = ''
         if right == '' and op == '':
             text = (
@@ -347,6 +352,7 @@ class Generador:
             type (TipoPrint): tipo del print
             value (any): valor a imprimir
         """
+        self.free_temp(value)
         tipo, casteo = get_type_print(type)
         data = ''
         if casteo is None:
@@ -456,6 +462,8 @@ class Generador:
             value (str): valor a guardar
             comment (str, optional): comentario. Defaults to ''.
         """
+        self.free_temp(index)
+        self.free_temp(value)
         text = (
             f'heap[int({index})] = {value};\n'
             if comment == ''
@@ -474,6 +482,7 @@ class Generador:
             index (str): posicion en el heap
             comment (str, optional): comentario. Defaults to ''.
         """
+        self.free_temp(index)
         text = (
             f'{place} = heap[int({index})];\n'
             if comment == ''
@@ -490,7 +499,9 @@ class Generador:
         self.set_code('H = H + 1;\n')
 
     # -------------- -> STACK <- --------------
-    def set_stack(self, index: str, value: str, comment: str = ''):
+    def set_stack(
+        self, index: str, value: str, comment: str = '', free_val=True
+    ):
         """
         Guardar en el stack
 
@@ -501,6 +512,9 @@ class Generador:
             value (str): valor a guardar
             comment (str, optional): comentario. Defaults to ''.
         """
+        self.free_temp(index)
+        if free_val:
+            self.free_temp(value)
         text = (
             f'stack[int({index})] = {value};\n'
             if comment == ''
@@ -517,6 +531,7 @@ class Generador:
             place (str): variable donde se guardara
             index (str): posicion en el stack
         """
+        self.free_temp(index)
         self.set_code(f'{place} = stack[int({index})];\n')
 
     # --------------------------------------------------------------------------
@@ -579,6 +594,9 @@ class Generador:
 
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_P)
+        self.free_temp(tmp_H)
+        self.free_temp(tmp_compare)
 
     def concat_string(self):
         if self.is_join_str:
@@ -659,6 +677,11 @@ class Generador:
         self.set_stack('P', tmp_ret, 'Guardar el inicio de la cadena unida')
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_p2)
+        self.free_temp(tmp_h)
+        self.free_temp(tmp_compare)
+        self.free_temp(tmp_ret)
 
     def pot_string(self):
         if self.is_pot_str:
@@ -750,6 +773,13 @@ class Generador:
         self.set_stack('P', tmp_ret, 'Guardar donde inica la cadena unida')
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_ret)
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_h)
+        self.free_temp(tmp_exp)
+        self.free_temp(tmp_compare)
+        self.free_temp(tmp_com_exp)
+        self.free_temp(tmp_h_copy)
 
     def to_upper(self):
         if self.is_to_upper:
@@ -798,6 +828,10 @@ class Generador:
         self.set_stack('P', tmp_ret, 'Guardar donde inica la nueva cadena')
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_ret)
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_h)
+        self.free_temp(tmp_comp)
 
     def to_lower(self):
         if self.is_to_lower:
@@ -846,6 +880,10 @@ class Generador:
         self.set_stack('P', tmp_ret, 'Guardar donde inica la nueva cadena')
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_ret)
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_h)
+        self.free_temp(tmp_comp)
 
     def division_validate(self):
         if self.is_validate_div:
@@ -883,6 +921,10 @@ class Generador:
         self.set_stack('P', tmp_ret, 'gurdar resultado')
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_lf)
+        self.free_temp(tmp_rg)
+        self.free_temp(tmp_ret)
 
     def validate_index_array(self):
         if self.is_index_validate:
@@ -926,6 +968,10 @@ class Generador:
         self.set_stack('P', tmp_result)
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_len)
+        self.free_temp(tmp_i)
+        self.free_temp(tmp_result)
 
     def verify_equals_str(self):
         if self.is_equals_str:
@@ -978,6 +1024,11 @@ class Generador:
         self.set_label(end_lb)
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_h_1)
+        self.free_temp(tmp_h_2)
+        self.free_temp(tmp_comp_1)
+        self.free_temp(tmp_comp_2)
 
     def get_len_str(self):
         if self.is_len_str:
@@ -1015,3 +1066,7 @@ class Generador:
         self.set_stack('P', tmp_result)
         self.new_end_funct()
         self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_h)
+        self.free_temp(tmp_result)
+        self.free_temp(tmp_compare)

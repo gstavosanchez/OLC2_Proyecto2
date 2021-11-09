@@ -5,7 +5,7 @@ from src.interprete.compilador.abstracto.Instruccion import Instruccion
 
 
 class For(Instruccion):
-    def __init__(self, id, exp_1, instructions, line, column, exp_2):
+    def __init__(self, id, exp_1, instructions, line, column, exp_2=None):
         super().__init__(line, column)
         self.id_var = id
         self.exp_1: Instruccion = exp_1
@@ -13,13 +13,14 @@ class For(Instruccion):
         self.inst_list: Instruccion = instructions
 
     def compilar(self, entorno: Entorno):
-        value_1: Valor = self.exp_1.compilar(entorno)
-        value_2: Valor = self.exp_2.compilar(entorno) if self.exp_2 else None
         self.generador.begin_comment('Inicio For')
         new_env = Entorno(entorno)
-        if value_2 is None:
-            pass
+        value_1: Valor = self.exp_1.compilar(entorno)
+        if self.exp_2 is None:
+            if value_1.get_type() == TipoVar.ARRAY:
+                self.for_array(value_1, new_env)
         else:
+            value_2: Valor = self.exp_2.compilar(entorno)
             self.for_normal(value_1, value_2, new_env)
         self.generador.end_comment('fin for')
 
@@ -93,9 +94,6 @@ class For(Instruccion):
         self.generador.new_goto(lb_while)
         self.generador.set_label(true_lb)
 
-    def for_each(self):
-        pass
-
     def is_valid(self, left: Valor, right: Valor):
         if (
             left.get_type() == TipoVar.INT64
@@ -108,3 +106,63 @@ class For(Instruccion):
                 return True
 
         return False
+
+    def for_array(self, value: Valor, entorno: Entorno):
+        new_var = entorno.save_variable(
+            self.id_var, value.get_aux_type(), False
+        )
+        # -------------- -> ASIGNACION VARIABLE <- --------------
+        tmp_pos = new_var.get_position()
+        if not new_var.get_is_global():
+            tmp_pos = self.generador.new_temp()
+            self.generador.new_exp(tmp_pos, 'P', new_var.get_position(), '+')
+
+        self.generador.set_stack(tmp_pos, value.get_value())
+
+        # ------ CYCLE
+        start = self.generador.new_label()
+        label_true = self.generador.new_label()
+        exit = self.generador.new_label()
+
+        # pos_array: where start the array in heap
+        pos_array = self.generador.new_temp()
+        self.generador.new_exp(pos_array, value.get_value(), '', '')
+
+        t0 = self.generador.new_temp()
+        size = self.generador.new_temp()
+        t1 = self.generador.new_temp()
+        t2 = self.generador.new_temp()
+        counter = self.generador.new_temp()
+        value_array = self.generador.new_temp()
+        index_array = self.generador.new_temp()
+
+        # getting size
+        self.generador.get_stack(t0, tmp_pos)
+        self.generador.get_heap(size, t0)
+
+        # initializing the symbol value
+        self.generador.new_exp(counter, '0', '', '')
+        self.generador.new_exp(index_array, pos_array, '', '')
+        self.generador.new_exp(index_array, index_array, '1', '+')
+
+        self.generador.set_label(start)
+
+        self.generador.new_exp(t2, 'P', tmp_pos, '+')
+        self.generador.get_stack(t1, t2)
+        self.generador.new_if(counter, size, '<', label_true)
+        self.generador.new_goto(exit)
+
+        self.generador.set_label(label_true)
+
+        self.generador.get_heap(value_array, index_array)
+        self.generador.set_stack(new_var.get_position(), value_array)
+        entorno.set_break(exit)
+        entorno.set_continue(start)
+        self.inst_list.compilar(entorno)
+
+        self.generador.new_exp(counter, counter, '1', '+')
+        self.generador.new_exp(index_array, index_array, '1', '+')
+
+        self.generador.new_goto(start)
+
+        self.generador.set_label(exit)
