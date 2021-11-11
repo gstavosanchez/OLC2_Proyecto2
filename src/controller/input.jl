@@ -1,16 +1,36 @@
+function insertionSort(arr::Vector{Int64}) 
+
+    for i in 2:6
+        j = i;
+        temp = arr[i];
+        while(j > 1 && arr[j - 1] > temp)
+            arr[j] = arr[j-1];
+            j = j - 1;
+        end;
+        arr[j] = temp;
+    end;
+end;
+
+
+arreglo = [100,50,25,150,1,5]::Vector{Int64};
+insertionSort(arreglo);
+for x in 1:6
+	print(arreglo[x], " ");
+end;
+
 # function quicksort(array::Vector{Int64},low::Int64,n::Int64)::Int64
 # 	mid = array[(trunc(((low + n) / 2)))]::Int64;
 # end;
 
-struct Cartelera
-    peliculas::Vector{String};
-end;
+# struct Cartelera
+#     peliculas::Vector{String};
+# end;
 
-cinepolis = Cartelera(["Pelicula 1", "Pelicula 2", "Pelicula 3"]);
+# cinepolis = Cartelera(["Pelicula 1", "Pelicula 2", "Pelicula 3"]);
 
-for pelicula in ["Pelicula 1", "Pelicula 2", "Pelicula 3", "Pelicula 3555"]
-    println(pelicula);
-end;
+# for pelicula in ["Pelicula 1", "Pelicula 2", "Pelicula 3", "Pelicula 3555"]
+#     println(pelicula);
+# end;
 
 
 # function quicksort(a::Int64)::Int64
@@ -42,3 +62,7 @@ end;
 # println("BubbleSort => ", arreglo);
 # bubbleSort(arreglo);
 # println("BubbleSort => ", arreglo);
+
+
+
+
