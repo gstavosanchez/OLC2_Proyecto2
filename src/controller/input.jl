@@ -1,5 +1,15 @@
-function quicksort(array::Vector{Int64},low::Int64,n::Int64)::Int64
-	mid = array[(trunc(((low + n) / 2)))]::Int64;
+# function quicksort(array::Vector{Int64},low::Int64,n::Int64)::Int64
+# 	mid = array[(trunc(((low + n) / 2)))]::Int64;
+# end;
+
+struct Cartelera
+    peliculas::Vector{String};
+end;
+
+cinepolis = Cartelera(["Pelicula 1", "Pelicula 2", "Pelicula 3"]);
+
+for pelicula in ["Pelicula 1", "Pelicula 2", "Pelicula 3", "Pelicula 3555"]
+    println(pelicula);
 end;
 
 

@@ -88,6 +88,8 @@ class AccesoStruct(Instruccion):
         val_ret = Valor(tmp_saved, att_type.get_type(), True)
         if att_type.get_type() == TipoVar.STRUCT:
             val_ret.set_aux_type(att_type.get_type_aux())
+        elif att_type.get_type() == TipoVar.ARRAY:
+            val_ret.set_aux_type(att_type.get_type_aux_array())
         return val_ret
 
     def set_labels(self):

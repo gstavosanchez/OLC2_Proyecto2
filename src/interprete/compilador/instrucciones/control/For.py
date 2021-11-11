@@ -118,8 +118,6 @@ class For(Instruccion):
             tmp_pos = self.generador.new_temp()
             self.generador.new_exp(tmp_pos, 'P', new_var.get_position(), '+')
 
-        self.generador.set_stack(tmp_pos, value.get_value())
-
         # ------ CYCLE
         start = self.generador.new_label()
         label_true = self.generador.new_label()
@@ -137,6 +135,7 @@ class For(Instruccion):
         value_array = self.generador.new_temp()
         index_array = self.generador.new_temp()
 
+        self.generador.set_stack(tmp_pos, value.get_value())
         # getting size
         self.generador.get_stack(t0, tmp_pos)
         self.generador.get_heap(size, t0)
