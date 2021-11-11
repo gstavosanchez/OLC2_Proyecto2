@@ -1,7 +1,9 @@
+from src.interprete.compilador.tipos.Tipo import get_tipo_var
+from src.interprete.compilador.simbolos.Simbolo import Simbolo
 from src.interprete.compilador.simbolos.Generador import Generador
 from src.interprete.ast.TreeAST import TreeAST
 from src.interprete.compilador.simbolos.Entorno import Entorno
-from src.interprete.gramatica.gramatica import *
+from src.interprete.gramatica.compilador.gramatica import *
 
 
 def execute(input_str: str):
@@ -28,6 +30,8 @@ def execute(input_str: str):
     return {
         'compilador': str_output,
         'error_str': str_error,
+        'erro_list': generator.get_erro_json(),
+        'tabla_simbolo': get_table_simbol(global_enviroment),
     }
 
 
@@ -48,3 +52,24 @@ def dev_compilier():
     input_str = f.read()
     return execute(input_str)
     # execute(input_str)
+
+
+def get_table_simbol(enviroment: Entorno):
+    table_list: list = []
+    for key in enviroment.variables:
+        simbolo: Simbolo = enviroment.variables[key]
+        objeto = {
+            'nombre': key,
+            'tipo': get_tipo_var(simbolo.get_type()),
+            'ambito': 'Global',
+        }
+        table_list.append(objeto)
+
+    for key in enviroment.functions:
+        objeto = {'nombre': key, 'tipo': 'Funcion', 'ambito': 'Global'}
+        table_list.append(objeto)
+    for key in enviroment.structs:
+        objeto = {'nombre': key, 'tipo': 'Struct', 'ambito': 'Global'}
+        table_list.append(objeto)
+
+    return table_list
