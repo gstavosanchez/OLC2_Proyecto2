@@ -97,20 +97,21 @@ class Asignacion(Instruccion):
             )
             new_var.set_type_struct(aux)
 
-        if not self.save_arrays(new_var, value_compiled, type_aux_array):
-            error_str = (
-                self.id
-                + ' de tipo Array esperaba subtipo '
-                + get_tipo_var(value_compiled.get_aux_type())
-                + ' se envio subtipo '
-                + get_tipo_var(type_aux_array)
-            )
-            self.generador.new_error(
-                error_str,
-                self.line,
-                self.column,
-            )
-            return
+        elif type_aux == TipoVar.ARRAY:
+            if not self.save_arrays(new_var, value_compiled, type_aux_array):
+                error_str = (
+                    self.id
+                    + ' de tipo Array esperaba subtipo '
+                    + get_tipo_var(value_compiled.get_aux_type())
+                    + ' se envio subtipo '
+                    + get_tipo_var(type_aux_array)
+                )
+                self.generador.new_error(
+                    error_str,
+                    self.line,
+                    self.column,
+                )
+                return
 
         # if new_var is None:
         #     self.generador.new_error(

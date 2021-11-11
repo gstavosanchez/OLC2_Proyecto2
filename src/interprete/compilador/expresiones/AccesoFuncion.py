@@ -37,14 +37,12 @@ class AccesoFuncion(Instruccion):
             for exp in self.param_exp:
                 param_send: Valor = exp.compilar(entorno)
                 param_registered = funct_simbol.get_value_param(i)
-                if param_send.get_type() != param_registered.get_type():
-                    erro_str = (
-                        'Argumento de tipo '
-                        + get_tipo_var(param_send.get_type())
-                        + ' no se puede asiganar al parametro de tipo '
-                        + get_tipo_var(param_registered.get_type())
+                if param_registered.get_type() == TipoVar.ARRAY:
+                    pass
+                elif param_send.get_type() != param_registered.get_type():
+                    self.generate_error(
+                        param_send.get_type(), param_registered.get_type()
                     )
-                    self.generador.new_error(erro_str, self.line, self.column)
                     return
 
                 if param_send.get_type() == TipoVar.BOOLEAN:
@@ -177,3 +175,12 @@ class AccesoFuncion(Instruccion):
             self.true_label = self.generador.new_label()
         if self.false_label == '':
             self.false_label = self.generador.new_label()
+
+    def generate_error(self, tipo1: TipoVar, tipo2: TipoVar):
+        erro_str = (
+            'Argumento de tipo '
+            + get_tipo_var(tipo1)
+            + ' no se puede asiganar al parametro de tipo '
+            + get_tipo_var(tipo2)
+        )
+        self.generador.new_error(erro_str, self.line, self.column)
