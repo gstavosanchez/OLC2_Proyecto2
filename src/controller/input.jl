@@ -1,48 +1,15 @@
-struct Actor
-    nombre:: String;
-    edad:: Int64;
+array = [
+        [12,9,4,99,56,34,78,22,1,3,10,13,120],
+        [32,7*3,7,89,56,909,109,2,9,9874^0,44,3,820*10,11,8*0+8,10]
+    ]::Vector{Vector{Int64}};
+
+println("Quick Sort");
+println("Valores antes de Quicksort");
+for x in 1:length(array[1])
+	if x != length(array[1])
+		print(array[1][x], "-");
+  else
+    print(array[1][x]);
+  end;
 end;
-
-struct Pelicula 
-    nombre::String;
-    posicion::Int64;
-end;
-
-struct Contrato
-    actor::Actor;
-    pelicula::Pelicula;
-end;
-
-actores = ["Elizabeth Olsen", "Adam Sandler", "Christian Bale", "Jennifer Aniston"];
-peliculas = ["Avengers: Age of Ultron", "Mr. Deeds", "Batman: The Dark Knight", "Marley & Me"];
-
-function contratar(actor::Actor, pelicula::Pelicula)::Contrato
-    return Contrato(actor,pelicula);
-end;
-
-function crearActor(nombre::String, edad::Int64)::Actor
-    return Actor(nombre,edad);
-end;
-
-function crearPelicula(nombre::String, posicion::Int64)::Pelicula
-    return Pelicula(nombre,posicion);
-end;
-
-function imprimir(contrato::Contrato)
-    println("Actor: ", contrato.actor.nombre, "   Edad: ", contrato.actor.edad);
-    println("Pelicula: ", contrato.pelicula.nombre, "   Genero: ", contrato.pelicula.posicion);
-end;
-
-function contratos()
-    for i in 1:(1*1+2)
-        contrato = Contrato(Actor("",0),Pelicula("",0));
-        if(i < 4)
-            actor = crearActor(actores[i], i+38);
-            pelicula = crearPelicula(peliculas[i], i);
-            contrato = contratar(actor, pelicula);
-        end;
-        imprimir(contrato);    
-    end;
-end;
-
-contratos();
+println("");

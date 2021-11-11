@@ -51,6 +51,8 @@ class Generador:
         self.is_equals_str = False
         # Lenght String
         self.is_len_str = False
+        # Truncate
+        self.is_truncate = False
 
     def clean(self):
         # contadores
@@ -85,6 +87,8 @@ class Generador:
         self.is_equals_str = False
         # Lenght String
         self.is_len_str = False
+        # Truncate
+        self.is_truncate = False
 
     # --------------------------------------------------------------------------
     # NUEVO TEMPORAL, LABEL, GOTO && IF
@@ -1070,3 +1074,41 @@ class Generador:
         self.free_temp(tmp_h)
         self.free_temp(tmp_result)
         self.free_temp(tmp_compare)
+
+    def trucate_num(self):
+        if self.is_truncate:
+            return
+
+        self.is_truncate = True
+        self.in_native = True
+        self.new_begin_func('truncNum')
+
+        # -------------- -> L0..Ln <- --------------
+        end_lb = self.new_label()  # L0: Salida
+        wh_lb = self.new_label()  # L1: While
+        # -------------- -> T0...Tn <- --------------
+        tmp_p = self.new_temp()  # T0 = P + 1
+        tmp_num = self.new_temp()  # T1 = 5
+        tmp_count = self.new_temp()  # Contador
+        # -------------- -> EXPRESIONES <- --------------
+        self.new_exp(tmp_p, 'P', '1', '+')
+        self.get_stack(tmp_num, tmp_p)
+        self.new_exp(tmp_count, '0', '', '')
+
+        # While:
+        self.set_label(wh_lb)
+        # verificar si es la ultima posicion
+        self.new_if(tmp_count, tmp_num, '>', end_lb)
+        # aumentar contador
+        self.new_exp(tmp_count, tmp_count, '1', '+')
+        self.new_goto(wh_lb)
+
+        # Exit:
+        self.set_label(end_lb)
+        self.new_exp(tmp_count, tmp_count, '1', '-')
+        self.set_stack('P', tmp_count, 'gurdar resultado')
+        self.new_end_funct()
+        self.in_native = False
+        self.free_temp(tmp_p)
+        self.free_temp(tmp_num)
+        self.free_temp(tmp_count)

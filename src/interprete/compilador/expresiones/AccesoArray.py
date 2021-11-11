@@ -111,7 +111,9 @@ class AccesoArray(Instruccion):
 
                 self.generador.get_heap(tmp_recov, tmp_aux)
                 # -------------- -> VALIDACION <- --------------
-                validate: Valor = self.validate_index(tmp_recov, index, entorno)
+                tmp_len = self.generador.new_temp()
+                self.generador.get_heap(tmp_len, tmp_recov)
+                validate: Valor = self.validate_index(tmp_len, index, entorno)
                 self.generador.new_if(validate.get_value(), '1', '==', exit_lb)
 
                 # -------------- -> FIN VALIDACION <- --------------
@@ -130,8 +132,26 @@ class AccesoArray(Instruccion):
     def set_labels(self):
         pass
 
-    def get_value(self):
-        pass
+    def get_type_array(self, types_list: list, entorno: Entorno):
+        i = 0
+        arreglo = types_list
+        for x in self.position_list:
+            index_val: Valor = x.compilar(entorno)
+            if not index_val.get_is_temp():
+                value = arreglo[index_val.get_value()]
+                if i == len(self.position_list) - 1:
+                    aux_tipo = None
+                    if isinstance(value, list):
+                        aux_tipo = TipoVar.ARRAY
+                    else:
+                        aux_tipo = value
+                    return aux_tipo
+                elif isinstance(value, list):
+                    arreglo = value
+            else:
+                return None
+            i += 1
+        return None
 
     def verify_index(self, entorno: Entorno):
         for i in self.position_list:
@@ -153,7 +173,9 @@ class AccesoArray(Instruccion):
     def validate_index(self, leght: str, index: int, entorno: Entorno):
         self.generador.validate_index_array()
         self.generador.line_break()
-        self.generador.new_comment_line()
+        self.generador.begin_comment('index validate')
+        self.generador.new_commnet(leght)
+        self.generador.new_commnet(str(index))
         # self.generador.new_commnet('Paso de parametros')
         # Temporal para almacenar parametros
         tmp_p = self.generador.new_temp()

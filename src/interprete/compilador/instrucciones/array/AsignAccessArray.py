@@ -109,7 +109,9 @@ class AsignarAccesoArray(Instruccion):
 
                 self.generador.get_heap(tmp_recov, tmp_aux)
                 # -------------- -> VALIDACION <- --------------
-                validate: Valor = self.validate_index(tmp_recov, index, entorno)
+                tmp_len = self.generador.new_temp()
+                self.generador.get_heap(tmp_len, tmp_recov)
+                validate: Valor = self.validate_index(tmp_len, index, entorno)
                 self.generador.new_if(validate.get_value(), '1', '==', exit_lb)
 
                 # -------------- -> FIN VALIDACION <- --------------

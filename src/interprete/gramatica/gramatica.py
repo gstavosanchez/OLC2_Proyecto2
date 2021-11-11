@@ -1,3 +1,4 @@
+from src.interprete.compilador.expresiones.natives.Truncate import Truncate
 from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
 from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
 from src.interprete.compilador.expresiones.AccesoStruct import AccesoStruct
@@ -75,6 +76,8 @@ reservadas = {
     'struct': 'RSTRUCT',
     'mutable': 'RMUTABLE',
     'length': 'RLENGTH',
+    'Vector': 'RVECTOR',
+    'trunc': 'RTRUNCN',
 }
 # ==============================================================================
 # TOKENS
@@ -90,6 +93,8 @@ tokens = [
     'DPUNTOS',
     'CORA',
     'CORC',
+    'LLA',
+    'LLC',
     # ARITMETICOS
     'MAS',
     'MENOS',
@@ -124,6 +129,8 @@ t_DPUNTOS = r'\:'
 t_IGUAL = r'='
 t_CORA = r'\['
 t_CORC = r'\]'
+t_LLA = r'\{'
+t_LLC = r'\}'
 # -------------- -> TOKEN ARITMETICOS <- --------------
 t_MAS = r'\+'
 t_MENOS = r'\-'
@@ -894,6 +901,7 @@ def p_exp_fin(t):
                         | acces_array
                         | access_struct
                         | len_array
+                        | truncate_exp
     '''
     if len(t) == 2:
         if t.slice[1].type == 'ENTERO':
@@ -923,6 +931,8 @@ def p_exp_fin(t):
         elif t.slice[1].type == 'access_struct':
             t[0] = t[1]
         elif t.slice[1].type == 'len_array':
+            t[0] = t[1]
+        elif t.slice[1].type == 'truncate_exp':
             t[0] = t[1]
         elif isinstance(t[1], str):
             value = t[1]
@@ -983,6 +993,7 @@ def p_tipo(t):
                         | RCHAR
                         | RSTRING
                         | ID
+                        | tipo_array_
     '''
     if len(t) == 2:
         if t[1] == 'Int64':
@@ -999,8 +1010,9 @@ def p_tipo(t):
 
         elif t[1] == 'String':
             t[0] = TipoVar.STRING
-
         elif t.slice[1].type == 'ID':
+            t[0] = t[1]
+        elif t.slice[1].type == 'tipo_array_':
             t[0] = t[1]
 
 
@@ -1036,6 +1048,15 @@ def p_tipo_funct(t):
 
         elif t.slice[1].type == 'ID':
             t[0] = t[1]
+
+
+# Vector{Vector{Int64}};
+# Vector{Int64}
+def p_tipo_array(t):
+    '''
+    tipo_array_         : RVECTOR LLA tipo LLC
+    '''
+    t[0] = TipoVar.ARRAY
 
 
 # ------------------------------------------------------------------------------
@@ -1078,6 +1099,15 @@ def p_position(t):
 def p_exp_length(t):
     'len_array          : RLENGTH PARA expresion PARC'
     t[0] = Length(t[3], t.lineno(1), find_column(input_data, t.slice[1]))
+
+
+# ------------------------------------------------------------------------------
+# TRUNCATE
+def p_truncate(t):
+    '''
+    truncate_exp        : RTRUNCN PARA expresion PARC
+    '''
+    t[0] = Truncate(t[3], t.lineno(1), find_column(input_data, t.slice[1]))
 
 
 # ==============================================================================
