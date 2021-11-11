@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.SimboloArray import SimboloArray
 from src.interprete.compilador.simbolos.Simbolo import Simbolo
 from src.interprete.compilador.abstracto.Valor import Valor
 from src.interprete.compilador.tipos.Tipo import (
@@ -30,6 +31,7 @@ class Asignacion(Instruccion):
 
         type_aux = None
         type_aux_struct = None
+        type_aux_array = None
         # Validar tipo
         if self.type:
             if isinstance(self.type, TipoVar):
@@ -48,6 +50,9 @@ class Asignacion(Instruccion):
                     )
                     return
                 type_aux = self.type
+            elif isinstance(self.type, SimboloArray):
+                type_aux = TipoVar.ARRAY
+                type_aux_array = self.type.get_subtipo()
             else:
                 struct = entorno.get_struct(self.type)
                 if struct is None:
@@ -92,7 +97,20 @@ class Asignacion(Instruccion):
             )
             new_var.set_type_struct(aux)
 
-        self.save_arrays(new_var, value_compiled)
+        if not self.save_arrays(new_var, value_compiled, type_aux_array):
+            error_str = (
+                self.id
+                + ' de tipo Array esperaba subtipo '
+                + get_tipo_var(value_compiled.get_aux_type())
+                + ' se envio subtipo '
+                + get_tipo_var(type_aux_array)
+            )
+            self.generador.new_error(
+                error_str,
+                self.line,
+                self.column,
+            )
+            return
 
         # if new_var is None:
         #     self.generador.new_error(
@@ -142,11 +160,21 @@ class Asignacion(Instruccion):
             return True
         return False
 
-    def save_arrays(self, new_var: Simbolo, value: Valor):
+    def save_arrays(self, new_var: Simbolo, value: Valor, subtipo):
         if (
             new_var.get_type() == TipoVar.ARRAY
             and value.get_type() == TipoVar.ARRAY
         ):
-            new_var.set_list_aux_types(value.get_aux_types_list())
-            new_var.set_list_aux_values(value.get_aux_values_list())
-            new_var.set_tipo_aux(value.get_aux_type())
+            if value.get_aux_type() is not None and subtipo is not None:
+                if subtipo == value.get_aux_type():
+                    new_var.set_list_aux_types(value.get_aux_types_list())
+                    new_var.set_list_aux_values(value.get_aux_values_list())
+                    new_var.set_tipo_aux(value.get_aux_type())
+                    return True
+                else:
+                    return False
+            else:
+                new_var.set_list_aux_types(value.get_aux_types_list())
+                new_var.set_list_aux_values(value.get_aux_values_list())
+                new_var.set_tipo_aux(value.get_aux_type())
+                return True

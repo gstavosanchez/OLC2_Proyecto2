@@ -47,6 +47,8 @@ class Funcion(Instruccion):
             if new_var is not None:
                 if new_var.get_type() == TipoVar.STRUCT:
                     new_var.set_type_struct(param.get_type_aux())
+                elif new_var.get_type() == TipoVar.ARRAY:
+                    new_var.set_tipo_aux(param.get_type_aux_array())
 
         self.generador.free_all_temps()
 

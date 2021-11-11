@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.SimboloArray import SimboloArray
 from src.interprete.compilador.expresiones.natives.Truncate import Truncate
 from src.interprete.compilador.expresiones.AccesoArray import AccesoArray
 from src.interprete.compilador.expresiones.AccesoFuncion import AccesoFuncion
@@ -1051,12 +1052,41 @@ def p_tipo_funct(t):
 
 
 # Vector{Vector{Int64}};
-# Vector{Int64}
+# Vector{Vector{Vector{Int64}}};
 def p_tipo_array(t):
     '''
-    tipo_array_         : RVECTOR LLA tipo LLC
+    tipo_array_         : RVECTOR LLA tipo_array_ LLC
+                        | RVECTOR LLA subtipo_array LLC
     '''
-    t[0] = TipoVar.ARRAY
+    if t.slice[3].type == 'subtipo_array':
+        t[0] = SimboloArray(TipoVar.ARRAY, t[3])
+    else:
+        t[0] = t[3]
+
+
+def p_tipo_subtipo_arra(t):
+    '''
+    subtipo_array       : RINT64
+                        | RFLOAT64
+                        | RBOOL
+                        | RCHAR
+                        | RSTRING
+    '''
+    if len(t) == 2:
+        if t[1] == 'Int64':
+            t[0] = TipoVar.INT64
+
+        elif t[1] == 'Float64':
+            t[0] = TipoVar.FLOAT64
+
+        elif t[1] == 'Bool':
+            t[0] = TipoVar.BOOLEAN
+
+        elif t[1] == 'Char':
+            t[0] = TipoVar.CHAR
+
+        elif t[1] == 'String':
+            t[0] = TipoVar.STRING
 
 
 # ------------------------------------------------------------------------------

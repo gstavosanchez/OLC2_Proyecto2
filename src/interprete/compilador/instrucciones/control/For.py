@@ -17,6 +17,7 @@ class For(Instruccion):
         new_env = Entorno(entorno)
         value_1: Valor = self.exp_1.compilar(entorno)
         if self.exp_2 is None:
+            print(value_1.get_value())
             if value_1.get_type() == TipoVar.ARRAY:
                 self.for_array(value_1, new_env)
         else:

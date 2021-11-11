@@ -1,3 +1,4 @@
+from src.interprete.compilador.simbolos.SimboloArray import SimboloArray
 from src.interprete.compilador.tipos.Tipo import TipoVar
 
 
@@ -12,6 +13,7 @@ class Parametro:
         self.id = id
         self.type = type
         self.tyep_aux = None
+        self.type_aux_array = None
         self.verify_type(type)
 
     def set_id(self, id: str):
@@ -29,9 +31,15 @@ class Parametro:
     def verify_type(self, type):
         if isinstance(type, TipoVar):
             self.type = type
+        elif isinstance(type, SimboloArray):
+            self.type = type.get_tipo_array()
+            self.type_aux_array = type.get_subtipo()
         else:
             self.tyep_aux = type
             self.type = TipoVar.STRUCT
 
     def get_type_aux(self):
         return self.tyep_aux
+
+    def get_type_aux_array(self):
+        return self.type_aux_array
