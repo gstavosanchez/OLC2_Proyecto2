@@ -85,6 +85,11 @@ class Print(Instruccion):
                     self.generador.ret_entorno(entorno.get_size())
                     self.generador.line_break()
 
+                elif value.get_type() == TipoVar.CHAR:
+                    self.generador.print_new(
+                        TipoPrint.CARACTER, value.get_value()
+                    )
+
         if self.new_line:
             self.generador.print_line_break()
 

@@ -17,7 +17,10 @@ class For(Instruccion):
         new_env = Entorno(entorno)
         value_1: Valor = self.exp_1.compilar(entorno)
         if self.exp_2 is None:
-            if value_1.get_type() == TipoVar.ARRAY:
+            if value_1.get_type() == TipoVar.STRING:
+                self.for_string(value_1, new_env)
+            # elif value_1.get_type() == TipoVar.ARRAY:
+            else:
                 self.for_array(value_1, new_env)
         else:
             value_2: Valor = self.exp_2.compilar(entorno)
@@ -164,4 +167,46 @@ class For(Instruccion):
 
         self.generador.new_goto(start)
 
+        self.generador.set_label(exit)
+
+    def for_string(self, value: Valor, entorno: Entorno):
+        # save var and getting ID
+        variable = entorno.save_variable(self.id_var, TipoVar.CHAR, False)
+
+        # get position of variable
+        temp_pos = variable.get_position()
+        if not variable.get_is_global():
+            temp_pos = self.generador.new_temp()
+            self.generador.new_exp(temp_pos, 'P', variable.get_position(), '+')
+
+        self.generador.set_stack(temp_pos, value.get_value())
+        # ------ CYCLE
+        start = self.generador.new_label()
+        label_true = self.generador.new_label()
+        exit = self.generador.new_label()
+
+        value_string = self.generador.new_temp()
+        index_string = self.generador.new_temp()
+
+        # index_string: where start the array in heap
+        self.generador.new_exp(index_string, value.get_value(), '', '')
+
+        self.generador.set_label(start)
+        # get variable and assign value
+        self.generador.get_heap(value_string, index_string)
+
+        self.generador.new_if(value_string, '- 1', '!=', label_true)
+        self.generador.new_goto(exit)
+
+        self.generador.set_label(label_true)
+        self.generador.set_stack(variable.get_position(), value_string)
+
+        entorno.set_break(exit)
+        entorno.set_continue(start)
+        self.inst_list.compilar(entorno)
+
+        # ------ get and increase variables
+        self.generador.new_exp(index_string, index_string, '1', '+')
+        # ------ start again
+        self.generador.new_goto(start)
         self.generador.set_label(exit)
