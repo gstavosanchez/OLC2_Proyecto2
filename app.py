@@ -21,6 +21,20 @@ def compile():
     return jsonify(data)
 
 
+# Mirilla
+@app.route('/mirilla', methods=['POST'])
+def optimizar_mirilla():
+    data = main.execute_mirilla(request.json['code'])
+    return jsonify(data)
+
+
+# Bloque
+@app.route('/bloque', methods=['POST'])
+def optimizar_bloque():
+    data = main.execute_bloque(request.json['code'])
+    return jsonify(data)
+
+
 @app.route('/dev', methods=['GET'])
 def dev_compile():
     data = main.dev_compilier()

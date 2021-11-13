@@ -3,7 +3,8 @@ from src.interprete.compilador.simbolos.Simbolo import Simbolo
 from src.interprete.compilador.simbolos.Generador import Generador
 from src.interprete.ast.TreeAST import TreeAST
 from src.interprete.compilador.simbolos.Entorno import Entorno
-from src.interprete.gramatica.compilador.gramatica import *
+from src.interprete.gramatica.compilador import gramatica
+from src.interprete.gramatica.optimizador import optimizadorGramatica
 
 
 def execute(input_str: str):
@@ -12,21 +13,21 @@ def execute(input_str: str):
     generator.clean()
     # -------------- -> EXECUTE ANALISIS <- --------------
     global_enviroment: Entorno = Entorno()
-    inst_list = parse(input_str)
+    inst_list = gramatica.parse(input_str)
     # -------------- -> EXECUTE COMPILADOR <- --------------
     ast = TreeAST(inst_list, 0, 0)
     ast.compilar(global_enviroment)
 
     str_output = str(generator.get_code())
     str_error = str(generator.get_erro_str())
-    print('-------------- -> ERRORES <- -------------')
-    print(str_error)
-    print('')
-    print('-------------- -> SALIDA <- --------------')
-    # print(f'Entrada: {input_str}')
-    print('')
-    print(str_output)
-    print('------------------------------------------')
+    # print('-------------- -> ERRORES <- -------------')
+    # print(str_error)
+    # print('')
+    # print('-------------- -> SALIDA <- --------------')
+    # # print(f'Entrada: {input_str}')
+    # print('')
+    # print(str_output)
+    # print('------------------------------------------')
     return {
         'compilador': str_output,
         'error_str': str_error,
@@ -73,3 +74,25 @@ def get_table_simbol(enviroment: Entorno):
         table_list.append(objeto)
 
     return table_list
+
+
+def execute_mirilla(input_str: str):
+    try:
+        instructions = optimizadorGramatica.parse(input_str)
+        instructions.mirilla()
+
+        out_str = instructions.get_code()
+        return {'optimizador': str(out_str)}
+    except:
+        return {'optimizador': 'error al ejecutar'}
+
+
+def execute_bloque(input_str: str):
+    try:
+        instructions = optimizadorGramatica.parse(input_str)
+        instructions.bloques()
+
+        out_str = instructions.get_code()
+        return {'optimizador': str(out_str)}
+    except:
+        return {'optimizador': 'error al ejecutar'}

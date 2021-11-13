@@ -140,6 +140,8 @@ class Aritmetica(Instruccion):
         self.generador.set_label(cero_lb)
         self.generador.new_exp(tmp_result, '1', '', '')
 
+        self.generador.new_goto(exit_lb)
+
         self.generador.set_label(exit_lb)  # L1: -> exit label
 
         # self.generador.new_commnet('fin expresion aritmetica')

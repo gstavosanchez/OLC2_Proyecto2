@@ -9,7 +9,7 @@ class Expression(C3DInstruction):
         self.type_of = type_of
         self.constant = left.constant or right.constant
 
-    def neutralOps(self):
+    def neutral_ops(self):
         if self.type_of == '+' or self.type_of == '-':
             self.deleted = (
                 self.right.get_code() == '0' or self.left.get_code() == '0'

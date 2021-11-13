@@ -1,4 +1,4 @@
-from src.interprete.optimizador.expresiones.Primitivo import Primitivo
+from src.interprete.optimizador.expresiones.Literal import Literal
 from src.interprete.optimizador.C3DInstruction import C3DInstruction
 
 
@@ -10,7 +10,7 @@ class Assignment(C3DInstruction):
 
     def self_assignment(self):
         aux = None
-        if isinstance(self.exp, Primitivo):
+        if isinstance(self.exp, Literal):
             aux = self.place.get_code() == self.exp.get_code()
         else:
             aux = (

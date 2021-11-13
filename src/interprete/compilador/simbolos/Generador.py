@@ -258,8 +258,8 @@ class Generador:
         text += 'import (\n\t"fmt"\n\t"math"\n)\n\n'
         # Declaracion de variables
         text += 'var P, H float64;\n'
-        text += 'var stack [30101999]float64;\n'
-        text += 'var heap [30101999]float64;\n'
+        text += 'var stack [50000000]float64;\n'
+        text += 'var heap [50000000]float64;\n'
         # if len(self.temp_list) > 0:
         #     text += 'var '
         #     for i in range(len(self.temp_list)):

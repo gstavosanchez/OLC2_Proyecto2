@@ -28,15 +28,15 @@ class AccesoArray(Instruccion):
                 self.column,
             )
             return
-        if len(self.position_list) > self.verify_dimension(
-            variable.get_list_aux_types()
-        ):
-            self.generador.new_error(
-                f'La dimension del arreglo "{self.id}" no son las mismas',
-                self.line,
-                self.column,
-            )
-            return
+        # if len(self.position_list) > self.verify_dimension(
+        #     variable.get_list_aux_types()
+        # ):
+        #     self.generador.new_error(
+        #         f'La dimension del arreglo "{self.id}" no son las mismas',
+        #         self.line,
+        #         self.column,
+        #     )
+        #     return
 
         if not self.verify_index(entorno):
             self.generador.new_error(
