@@ -27,9 +27,13 @@ class Primitivo(Instruccion):
 
             if self.value:
                 self.generador.new_goto(self.true_label)  # goto L0
+                text = 'False Label: evita error en go:' + self.false_label
+                self.generador.new_commnet(text)
                 self.generador.new_goto(self.false_label)  # goto L1, evita err
             else:
                 self.generador.new_goto(self.false_label)  # goto L1
+                text = 'true Label: evita error en go:' + self.true_label
+                self.generador.new_commnet(text)
                 self.generador.new_goto(self.true_label)  # goto L0, evita error
 
             valor_return = Valor(self.value, self.type, False)

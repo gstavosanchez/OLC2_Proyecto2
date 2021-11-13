@@ -34,8 +34,9 @@ class Relacional(Instruccion):
             if (
                 left.get_type() == TipoVar.INT64
                 or left.get_type() == TipoVar.FLOAT64
-                and right.get_value() == TipoVar.INT64
-                or right.get_value() == TipoVar.FLOAT64
+            ) and (
+                right.get_type() == TipoVar.INT64
+                or right.get_type() == TipoVar.FLOAT64
             ):
 
                 # TRUE -> L0...Ln

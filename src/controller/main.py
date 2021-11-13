@@ -20,14 +20,14 @@ def execute(input_str: str):
 
     str_output = str(generator.get_code())
     str_error = str(generator.get_erro_str())
-    # print('-------------- -> ERRORES <- -------------')
-    # print(str_error)
-    # print('')
-    # print('-------------- -> SALIDA <- --------------')
-    # # print(f'Entrada: {input_str}')
-    # print('')
-    # print(str_output)
-    # print('------------------------------------------')
+    print('-------------- -> ERRORES <- -------------')
+    print(str_error)
+    print('')
+    print('-------------- -> SALIDA <- --------------')
+    # print(f'Entrada: {input_str}')
+    print('')
+    print(str_output)
+    print('------------------------------------------')
     return {
         'compilador': str_output,
         'error_str': str_error,
