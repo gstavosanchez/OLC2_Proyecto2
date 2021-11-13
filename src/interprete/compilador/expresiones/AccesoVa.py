@@ -43,7 +43,10 @@ class AccesoVariable(Instruccion):
 
         if var_simbol.get_type() != TipoVar.BOOLEAN:
             self.end_commnet()
-            return Valor(tmp_var, var_simbol.get_type(), True)
+            valor_return = Valor(tmp_var, var_simbol.get_type(), True)
+            if var_simbol.get_type() == TipoVar.ARRAY:
+                valor_return.set_aux_type(var_simbol.get_tipo_aux())
+            return valor_return
 
         # self.generador.free_temp(tmp_var)  # FIXME: REVISAR
         self.set_labels()
